@@ -81,7 +81,7 @@ const heartBeat: any = {
 export default function WelcomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t } = useLanguage();
-  
+
   const [popularPlaces, setPopularPlaces] = useState<Place[]>([]);
   const [popularDishes, setPopularDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +101,7 @@ export default function WelcomeScreen() {
   const floatingAnim1 = useRef(new Animated.Value(0)).current;
   const floatingAnim2 = useRef(new Animated.Value(0)).current;
   const parallaxScroll = useRef(new Animated.Value(0)).current;
-  
+
   // Animated value para el botón flotante
   const floatingButtonOpacity = useRef(new Animated.Value(0)).current;
   const floatingButtonScale = useRef(new Animated.Value(0)).current;
@@ -177,10 +177,10 @@ export default function WelcomeScreen() {
     const scrollY = event.nativeEvent.contentOffset.y;
     const contentHeight = event.nativeEvent.contentSize.height;
     const layoutHeight = event.nativeEvent.layoutMeasurement.height;
-    
+
     // Calcular cuánto falta para llegar al final
     const distanceFromBottom = contentHeight - (scrollY + layoutHeight);
-    
+
     // Ocultar el botón cuando esté cerca del final (últimos 300px)
     if (distanceFromBottom < 400) {
       hideFloatingButton();
@@ -268,7 +268,7 @@ export default function WelcomeScreen() {
   const animateStats = () => {
     const targetStats = { places: 150, dishes: 89, users: 1200 };
     let currentStats = { places: 0, dishes: 0, users: 0 };
-    
+
     const duration = 2000;
     const steps = 60;
     const interval = duration / steps;
@@ -277,15 +277,15 @@ export default function WelcomeScreen() {
     const timer = setInterval(() => {
       step++;
       const progress = step / steps;
-      
+
       currentStats = {
         places: Math.floor(targetStats.places * progress),
         dishes: Math.floor(targetStats.dishes * progress),
         users: Math.floor(targetStats.users * progress),
       };
-      
+
       setStats(currentStats);
-      
+
       if (step >= steps) {
         clearInterval(timer);
         setStats(targetStats);
@@ -295,7 +295,7 @@ export default function WelcomeScreen() {
 
   const startAutoScroll = () => {
     let index = 0;
-    
+
     scrollIntervalRef.current = setInterval(() => {
       if (popularPlaces.length > 0 && placesScrollRef.current) {
         index = (index + 1) % popularPlaces.length;
@@ -345,18 +345,18 @@ export default function WelcomeScreen() {
       delay={index * 100}
       style={styles.cardWrapper}
     >
-      <TouchableOpacity 
+      <TouchableOpacity
         activeOpacity={0.95}
-        onPress={() => {}}
+        onPress={() => { }}
       >
         <Animated.View style={[styles.placeCard, floating1Style]}>
           <Image
-            source={{ uri: place.photos?.[0] || 'https://images.unsplash.com/photo-1566127992631-137a642a90f4?w=400' }}
+            source={{ uri: place.photos?.[0] || 'https://images.pexels.com/photos/258159/pexels-photo-258159.jpeg?auto=compress&cs=tinysrgb&w=800' }}
             style={styles.placeImage}
           />
-          
-          <Animatable.View 
-            animation="pulse" 
+
+          <Animatable.View
+            animation="pulse"
             iterationCount="infinite"
             style={styles.categoryBadge}
           >
@@ -374,14 +374,14 @@ export default function WelcomeScreen() {
               <Text style={styles.cardTitle} numberOfLines={2}>
                 {place.name}
               </Text>
-              
+
               <View style={styles.cardFooter}>
                 <View style={styles.ratingContainer}>
                   <Ionicons name="star" size={16} color={COLORS.accent} />
                   <Text style={styles.ratingText}>{place.rating?.toFixed(1) || '4.8'}</Text>
                   <Text style={styles.reviewCount}>({place.numReviews || 150})</Text>
                 </View>
-                
+
                 {place.distance && (
                   <View style={styles.distanceContainer}>
                     <Ionicons name="navigate" size={14} color={COLORS.primaryLight} />
@@ -405,11 +405,11 @@ export default function WelcomeScreen() {
       <TouchableOpacity activeOpacity={0.95}>
         <Animated.View style={[styles.dishCard, floating2Style]}>
           <Image
-            source={{ uri: dish.imageUrl || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400' }}
+            source={{ uri: dish.imageUrl || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800' }}
             style={styles.dishImage}
           />
 
-          <Animatable.View 
+          <Animatable.View
             animation={heartBeat}
             iterationCount="infinite"
             duration={1000}
@@ -445,7 +445,7 @@ export default function WelcomeScreen() {
 
       {/* Hero Inicial (3 segundos) - OCULTAR SI LOADING */}
       {!showContent && !showLoadingOverlay && (
-        <Animated.View 
+        <Animated.View
           style={[
             styles.heroOverlay,
             {
@@ -461,15 +461,15 @@ export default function WelcomeScreen() {
             <Animatable.View animation="zoomIn" duration={1500}>
               <Text style={styles.heroTitle}>Descubre{'\n'}Lambayeque</Text>
             </Animatable.View>
-            
+
             <Animatable.View animation="fadeInUp" delay={800}>
               <Text style={styles.heroSubtitle}>
                 ¿Listo para descubrir lo que otros no conocen?
               </Text>
             </Animatable.View>
 
-            <Animatable.View 
-              animation="pulse" 
+            <Animatable.View
+              animation="pulse"
               iterationCount="infinite"
               style={styles.scrollHint}
             >
@@ -481,7 +481,7 @@ export default function WelcomeScreen() {
 
       {/* Contenido Principal - OCULTAR SI LOADING */}
       {!showLoadingOverlay && (
-        <Animated.View 
+        <Animated.View
           style={[
             styles.contentContainer,
             {
@@ -491,8 +491,8 @@ export default function WelcomeScreen() {
         >
           <SafeAreaView style={styles.safeArea} edges={['top']}>
             <Animatable.View animation="fadeInDown" style={styles.header}>
-              <Animatable.Text 
-                animation="pulse" 
+              <Animatable.Text
+                animation="pulse"
                 iterationCount="infinite"
                 style={styles.headerTitle}
               >
@@ -507,7 +507,7 @@ export default function WelcomeScreen() {
               showsVerticalScrollIndicator={false}
               onScroll={Animated.event(
                 [{ nativeEvent: { contentOffset: { y: parallaxScroll } } }],
-                { 
+                {
                   useNativeDriver: true,
                   listener: handleScroll,
                 }
@@ -520,16 +520,16 @@ export default function WelcomeScreen() {
                   colors={[COLORS.primary + '40', COLORS.primaryDark + '60']}
                   style={styles.heroBanner}
                 >
-                  <Animatable.Text 
-                    animation="fadeInUp" 
+                  <Animatable.Text
+                    animation="fadeInUp"
                     delay={200}
                     style={styles.title}
                   >
                     {t.welcome.title}
                   </Animatable.Text>
-                  
-                  <Animatable.Text 
-                    animation="fadeInUp" 
+
+                  <Animatable.Text
+                    animation="fadeInUp"
                     delay={400}
                     style={styles.subtitle}
                   >
@@ -541,8 +541,8 @@ export default function WelcomeScreen() {
               {/* Stats Animados */}
               <Animatable.View animation="fadeInUp" delay={600} style={styles.statsContainer}>
                 <View style={styles.statBox}>
-                  <Animatable.Text 
-                    animation="bounceIn" 
+                  <Animatable.Text
+                    animation="bounceIn"
                     delay={800}
                     style={styles.statNumber}
                   >
@@ -550,12 +550,12 @@ export default function WelcomeScreen() {
                   </Animatable.Text>
                   <Text style={styles.statLabel}>Lugares</Text>
                 </View>
-                
+
                 <View style={styles.statDivider} />
-                
+
                 <View style={styles.statBox}>
-                  <Animatable.Text 
-                    animation="bounceIn" 
+                  <Animatable.Text
+                    animation="bounceIn"
                     delay={1000}
                     style={styles.statNumber}
                   >
@@ -563,12 +563,12 @@ export default function WelcomeScreen() {
                   </Animatable.Text>
                   <Text style={styles.statLabel}>Platillos</Text>
                 </View>
-                
+
                 <View style={styles.statDivider} />
-                
+
                 <View style={styles.statBox}>
-                  <Animatable.Text 
-                    animation="bounceIn" 
+                  <Animatable.Text
+                    animation="bounceIn"
                     delay={1200}
                     style={styles.statNumber}
                   >
@@ -587,7 +587,7 @@ export default function WelcomeScreen() {
                     </Animatable.View>
                     <Text style={styles.sectionTitle}>{t.feed.popularPlaces}</Text>
                   </View>
-                  
+
                   <FlatList
                     ref={placesScrollRef}
                     data={popularPlaces}
@@ -598,7 +598,7 @@ export default function WelcomeScreen() {
                     snapToInterval={CARD_WIDTH + SPACING.md}
                     decelerationRate="fast"
                     contentContainerStyle={styles.carouselContent}
-                    onScrollToIndexFailed={() => {}}
+                    onScrollToIndexFailed={() => { }}
                   />
                 </Animatable.View>
               )}
@@ -612,7 +612,7 @@ export default function WelcomeScreen() {
                     </Animatable.View>
                     <Text style={styles.sectionTitle}>{t.feed.popularDishes}</Text>
                   </View>
-                  
+
                   <FlatList
                     ref={dishesScrollRef}
                     data={popularDishes}
@@ -623,7 +623,7 @@ export default function WelcomeScreen() {
                     snapToInterval={CARD_WIDTH * 0.85 + SPACING.md}
                     decelerationRate="fast"
                     contentContainerStyle={styles.carouselContent}
-                    onScrollToIndexFailed={() => {}}
+                    onScrollToIndexFailed={() => { }}
                   />
                 </Animatable.View>
               )}
@@ -631,7 +631,7 @@ export default function WelcomeScreen() {
               {/* Features Grid */}
               <Animatable.View animation="fadeInUp" delay={1200} style={styles.featuresSection}>
                 <Text style={styles.sectionTitle}>¿Qué te espera?</Text>
-                
+
                 <View style={styles.featuresGrid}>
                   {[
                     { icon: 'gift', title: 'Recompensas', desc: 'Gana puntos' },
@@ -645,8 +645,8 @@ export default function WelcomeScreen() {
                       delay={1400 + index * 100}
                       style={styles.featureCard}
                     >
-                      <Animatable.View 
-                        animation="pulse" 
+                      <Animatable.View
+                        animation="pulse"
                         iterationCount="infinite"
                         duration={2000 + index * 500}
                       >
@@ -665,14 +665,14 @@ export default function WelcomeScreen() {
               </Animatable.View>
 
               {/* CTA Final */}
-              <Animatable.View 
-                animation="bounceIn" 
+              <Animatable.View
+                animation="bounceIn"
                 delay={1600}
                 style={styles.ctaContainer}
               >
                 <BlurView intensity={60} tint="dark" style={styles.ctaBlur}>
-                  <Animatable.View 
-                    animation="pulse" 
+                  <Animatable.View
+                    animation="pulse"
                     iterationCount="infinite"
                     duration={2000}
                   >
@@ -684,8 +684,8 @@ export default function WelcomeScreen() {
                     />
                   </Animatable.View>
 
-                  <Animatable.Text 
-                    animation="flash" 
+                  <Animatable.Text
+                    animation="flash"
                     iterationCount="infinite"
                     duration={3000}
                     style={styles.ctaSubtext}
@@ -701,7 +701,7 @@ export default function WelcomeScreen() {
 
           {/* Botón Flotante de Acceso Rápido */}
           {showContent && (
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.floatingButtonContainer,
                 {
@@ -720,8 +720,8 @@ export default function WelcomeScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.floatingButton}
                 >
-                  <Animatable.View 
-                    animation="pulse" 
+                  <Animatable.View
+                    animation="pulse"
                     iterationCount="infinite"
                     duration={2000}
                     style={styles.floatingButtonContent}
@@ -735,10 +735,10 @@ export default function WelcomeScreen() {
           )}
         </Animated.View>
       )}
-      
+
       {/* Loading Overlay - AL FINAL */}
       {showLoadingOverlay && (
-        <LoadingOverlay 
+        <LoadingOverlay
           visible={showLoadingOverlay}
           onComplete={handleLoadingComplete}
         />

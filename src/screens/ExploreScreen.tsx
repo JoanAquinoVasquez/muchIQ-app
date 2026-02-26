@@ -64,7 +64,7 @@ export default function ExploreScreen() {
     setLoading(true);
     try {
       const [placesData, dishesData] = await Promise.all([
-        selectedCategory === 'all' 
+        selectedCategory === 'all'
           ? placesService.getPopularPlaces()
           : placesService.getPlacesByCategory(selectedCategory),
         placesService.getPopularDishes(),
@@ -266,7 +266,7 @@ export default function ExploreScreen() {
                   >
                     <TouchableOpacity style={styles.dishCard} activeOpacity={0.95}>
                       <Image
-                        source={{ uri: dish.imageUrl || 'https://via.placeholder.com/120' }}
+                        source={{ uri: dish.imageUrl || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800' }}
                         style={styles.dishCardImage}
                       />
                       <View style={styles.dishCardContent}>

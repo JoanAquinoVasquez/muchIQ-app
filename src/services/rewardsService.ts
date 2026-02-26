@@ -26,12 +26,12 @@ class RewardsService {
   async getRewards(): Promise<Reward[]> {
     try {
       const response = await api.get<Reward[]>('/api/rewards');
-      
+
       // Enriquecer las recompensas con información adicional
       const enrichedRewards = response.data.map(reward => ({
         ...reward,
         discount: this.calculateDiscount(reward.pointsCost),
-        validUntil: '31 Dic 2025',
+        validUntil: '31 Dic 2026',
         imageUrl: reward.imageUrl || this.getDefaultImage(reward.name),
       }));
 
@@ -55,10 +55,10 @@ class RewardsService {
   async redeemReward(rewardId: string): Promise<{ success: boolean; qrCode: string }> {
     try {
       const response = await api.post(`/api/rewards/${rewardId}/redeem`);
-      
+
       // Generar código QR único
       const qrData = `REWARD-${rewardId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
+
       return {
         success: true,
         qrCode: qrData,
@@ -81,21 +81,30 @@ class RewardsService {
   private getDefaultImage(rewardName: string): string {
     // Asignar imágenes por defecto según el nombre
     const name = rewardName.toLowerCase();
-    
+
     if (name.includes('ceviche') || name.includes('comida') || name.includes('plato')) {
-      return 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800';
+      return 'https://es.cravingsjournal.com/wp-content/uploads/2018/08/ceviche-con-leche-de-tigre-2.jpg';
     }
     if (name.includes('museo') || name.includes('cultura')) {
-      return 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=800';
+      return 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/cd/60/51/cartoline-da-citta-del.jpg?w=1200&h=-1&s=1';
     }
     if (name.includes('tour') || name.includes('turismo')) {
-      return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800';
+      return 'https://www.bbva.com/wp-content/uploads/2020/12/turismo_sostenible.jpg';
     }
     if (name.includes('café') || name.includes('cafeteria')) {
-      return 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800';
+      return 'https://www.idbinvest.org/sites/default/files/styles/size936x656/public/blog_post/iStock_000043355764Small2.jpg.webp?itok=C2I_4rS3';
     }
     if (name.includes('artesanía') || name.includes('tienda')) {
-      return 'https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=800';
+      return 'https://www.eloriente.net/home/wp-content/uploads/2012/08/foto-artesan%C3%ADas.jpeg';
+    }
+    if(name.includes('pizza')){
+      return 'https://www.papajohns.com.pe/media/catalog/product/a/g/agru_14358.png?optimize=medium&bg-color=255,255,255&fit=bounds&height=400&width=400&canvas=400:400&format=jpeg';
+    }
+    if(name.includes('pollo a la brasa')){
+      return 'https://media-cdn.tripadvisor.com/media/photo-s/16/ed/64/5e/chaufa-brasa-perfecta.jpg';
+    }
+    if(name.includes('chaufa')){
+      return 'https://www.paulinacocina.net/wp-content/uploads/2021/12/arroz-chaufa-peruano-receta.jpg';
     }
     
     // Imagen por defecto

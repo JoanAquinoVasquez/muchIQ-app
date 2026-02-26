@@ -123,27 +123,27 @@ export default function HomeScreen() {
   });
 
   const categories = [
-    { 
-      icon: 'map', 
-      label: 'Cerca de ti', 
+    {
+      icon: 'map',
+      label: 'Cerca de ti',
       color: COLORS.primary,
       onPress: () => navigation.navigate('Nearby')
     },
-    { 
-      icon: 'restaurant', 
-      label: 'Gastronomía', 
+    {
+      icon: 'restaurant',
+      label: 'Gastronomía',
       color: COLORS.accent,
       onPress: () => navigation.navigate('CategoryPlaces', { category: 'restaurante' })
     },
-    { 
-      icon: 'camera', 
-      label: 'Cultura', 
+    {
+      icon: 'camera',
+      label: 'Cultura',
       color: COLORS.success,
       onPress: () => navigation.navigate('CategoryPlaces', { category: 'museo' })
     },
-    { 
-      icon: 'calendar', 
-      label: 'Eventos', 
+    {
+      icon: 'calendar',
+      label: 'Eventos',
       color: COLORS.info,
       onPress: () => navigation.navigate('CategoryPlaces', { category: 'evento' })
     },
@@ -152,7 +152,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header Reutilizable */}
-      <AppHeader 
+      <AppHeader
         user={user}
         showRewards={true}
         showLogout={true}
@@ -165,8 +165,8 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={onRefresh}
             tintColor={COLORS.accent}
           />
@@ -182,7 +182,7 @@ export default function HomeScreen() {
                 delay={200 + index * 100}
                 style={styles.categoryItem}
               >
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.categoryCard}
                   activeOpacity={0.8}
                   onPress={item.onPress}
@@ -227,8 +227,8 @@ export default function HomeScreen() {
                   <Card style={styles.placeCard}>
                     <View style={styles.placeImageContainer}>
                       <Image
-                        source={{ 
-                          uri: place.photos?.[0] || 'https://images.unsplash.com/photo-1566127992631-137a642a90f4?w=400' 
+                        source={{
+                          uri: place.photos?.[0] || 'https://images.pexels.com/photos/258159/pexels-photo-258159.jpeg?auto=compress&cs=tinysrgb&w=800'
                         }}
                         style={styles.placeImage}
                       />
@@ -287,8 +287,8 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.dishesScroll}
             >
@@ -298,13 +298,13 @@ export default function HomeScreen() {
                   animation="fadeInRight"
                   delay={index * 100}
                 >
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.dishCard}
                     activeOpacity={0.95}
                   >
                     <Image
-                      source={{ 
-                        uri: dish.imageUrl || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400' 
+                      source={{
+                        uri: dish.imageUrl || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800'
                       }}
                       style={styles.dishImage}
                     />
@@ -331,10 +331,10 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Floating AI Button */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.floatingAI,
-          { 
+          {
             transform: [{ scale: pulseAnim }],
             opacity: glowOpacity,
           }

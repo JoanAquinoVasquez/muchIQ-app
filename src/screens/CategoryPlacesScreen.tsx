@@ -33,7 +33,7 @@ const CATEGORY_CONFIG: Record<string, { title: string; icon: string; color: stri
 
 // Eventos hardcodeados
 const HARDCODED_EVENTS = [
-    {
+  {
     _id: 'evento-1',
     name: 'Primera Hackathon Municipal',
     description: 'La Municipalidad de Chiclayo organiza su primera hackathon enfocada en soluciones tecnológicas para la ciudad. Participan equipos multidisciplinarios de toda la región.',
@@ -119,18 +119,18 @@ export default function CategoryPlacesScreen() {
         colors={[config.color, config.color + 'DD']}
         style={styles.header}
       >
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color={COLORS.textWhite} />
         </TouchableOpacity>
-        
+
         <View style={styles.headerContent}>
           <Ionicons name={config.icon as any} size={28} color={COLORS.textWhite} />
           <Text style={styles.headerTitle}>{config.title}</Text>
         </View>
-        
+
         <View style={styles.placeholder} />
       </LinearGradient>
 
@@ -175,7 +175,7 @@ export default function CategoryPlacesScreen() {
           {/* Places/Events List */}
           {places.map((place, index) => {
             const event = isEventCategory ? (place as any) : null;
-            
+
             return (
               <Animatable.View
                 key={place._id}
@@ -192,7 +192,7 @@ export default function CategoryPlacesScreen() {
                         source={
                           typeof place.photos?.[0] === 'number'
                             ? place.photos[0]
-                            : { uri: place.photos?.[0] || 'https://images.unsplash.com/photo-1566127992631-137a642a90f4?w=400' }
+                            : { uri: place.photos?.[0] || 'https://images.pexels.com/photos/258159/pexels-photo-258159.jpeg?auto=compress&cs=tinysrgb&w=800' }
                         }
                         style={styles.placeImage}
                       />
@@ -221,7 +221,7 @@ export default function CategoryPlacesScreen() {
                       <Text style={styles.placeName} numberOfLines={2}>
                         {place.name}
                       </Text>
-                      
+
                       {event && (
                         <View style={styles.dateContainer}>
                           <Ionicons name="time-outline" size={14} color={config.color} />
@@ -236,7 +236,7 @@ export default function CategoryPlacesScreen() {
                           {place.description}
                         </Text>
                       )}
-                      
+
                       {place.address && (
                         <View style={styles.addressContainer}>
                           <Ionicons name="location-outline" size={14} color={COLORS.textSecondary} />
@@ -245,7 +245,7 @@ export default function CategoryPlacesScreen() {
                           </Text>
                         </View>
                       )}
-                      
+
                       <View style={styles.placeFooter}>
                         <View style={styles.rating}>
                           <Ionicons name="star" size={14} color={COLORS.accent} />

@@ -231,7 +231,7 @@ export default function AIAssistantScreen() {
           </View>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Asistente IA</Text>
-            <Text style={styles.headerSubtitle}>Magma Bot de Lambayeque</Text>
+            <Text style={styles.headerSubtitle}>MuchIQ</Text>
           </View>
         </View>
 

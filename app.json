@@ -1,8 +1,14 @@
 {
   "expo": {
-    "name": "Lambayeque Explorer",
-    "slug": "lambayeque-explorer",
+    "name": "MuchIQ",
+    "slug": "muchiq",
     "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/54cece9e-99fd-4eea-96ad-1e50af354d23"
+    },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,14 +22,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourteam.lambayequeexplorer"
+      "bundleIdentifier": "com.yourteam.muchiq"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2C5F7C"
       },
-      "package": "com.yourteam.lambayequeexplorer",
+      "package": "com.yourteam.muchiq",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
@@ -36,9 +42,14 @@
     "plugins": [
       "expo-router"
     ],
-    "scheme": "lambayeque-explorer",
+    "scheme": "muchiq",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "54cece9e-99fd-4eea-96ad-1e50af354d23"
+      }
     }
   }
 }

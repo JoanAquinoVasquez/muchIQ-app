@@ -72,14 +72,14 @@ export default function PlaceDetailScreen() {
   const handleSubmitReview = async (rating: number, comment: string) => {
     try {
       const result = await placesService.addReview(placeId, rating, comment);
-      
+
       // Mostrar mensaje de éxito con puntos ganados
       Alert.alert(
         '¡Reseña publicada! 🎉',
         `${result.message}\n\n+${result.newPoints} puntos ganados`,
         [{ text: 'Genial', style: 'default' }]
       );
-      
+
       // Recargar los detalles del lugar
       await loadPlaceDetail();
     } catch (error: any) {
@@ -104,7 +104,7 @@ export default function PlaceDetailScreen() {
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
           <Text style={styles.errorText}>No se pudo cargar el lugar</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.retryButton}
             onPress={loadPlaceDetail}
           >
@@ -125,8 +125,8 @@ export default function PlaceDetailScreen() {
           colors={['rgba(0,0,0,0.7)', 'transparent']}
           style={styles.headerGradient}
         >
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.textWhite} />
@@ -193,10 +193,10 @@ export default function PlaceDetailScreen() {
           <Animatable.View animation="fadeInUp" delay={200}>
             <View style={styles.titleSection}>
               <View style={styles.categoryBadge}>
-                <Ionicons 
-                  name={getCategoryIcon(place.category)} 
-                  size={14} 
-                  color={COLORS.primary} 
+                <Ionicons
+                  name={getCategoryIcon(place.category)}
+                  size={14}
+                  color={COLORS.primary}
                 />
                 <Text style={styles.categoryText}>{place.category}</Text>
               </View>
@@ -322,7 +322,7 @@ export default function PlaceDetailScreen() {
                 </View>
               )}
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.addReviewButton}
                 onPress={() => setReviewModalVisible(true)}
               >

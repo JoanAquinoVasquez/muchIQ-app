@@ -1,8 +1,14 @@
 export default {
   expo: {
-    name: "Lambayeque Explorer",
-    slug: "lambayeque-explorer",
+    name: "MuchIQ",
+    slug: "muchiq",
     version: "1.0.0",
+    runtimeVersion: {
+      policy: "appVersion"
+    },
+    updates: {
+      url: "https://u.expo.dev/54cece9e-99fd-4eea-96ad-1e50af354d23"
+    },
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
@@ -14,7 +20,7 @@ export default {
     assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: false,
-      bundleIdentifier: "com.lambayeque.explorer",
+      bundleIdentifier: "com.muchiq",
       infoPlist: {
         NSLocationWhenInUseUsageDescription: "Permite encontrar lugares turísticos cercanos a ti.",
         NSLocationAlwaysAndWhenInUseUsageDescription: "Permite encontrar lugares turísticos cercanos a ti.",
@@ -26,7 +32,7 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#1A9B8E"
       },
-      package: "com.lambayeque.explorer",
+      package: "com.muchiq",
       versionCode: 1,
       permissions: [
         "ACCESS_FINE_LOCATION",
@@ -59,7 +65,7 @@ export default {
     // Configuración extra importante
     extra: {
       eas: {
-        projectId: "tu-project-id-aqui" // Opcional, pero útil si usas EAS
+        projectId: "54cece9e-99fd-4eea-96ad-1e50af354d23"
       }
     }
   }
