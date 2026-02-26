@@ -231,7 +231,10 @@ export default function ProfileScreen() {
         )}
 
         {/* Botón de editar perfil */}
-        <TouchableOpacity style={styles.editButton}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => navigation.navigate('EditProfile' as never)}
+        >
           <LinearGradient
             colors={[COLORS.primary, COLORS.primaryDark]}
             style={styles.editButtonGradient}

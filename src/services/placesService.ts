@@ -1,4 +1,4 @@
-import api from './api';
+import api from "./api";
 
 export interface Place {
   _id: string;
@@ -21,17 +21,22 @@ export interface Dish {
   description: string;
   imageUrl: string;
   likes?: number;
-  recommendedPlaces: string[];
+  recommendedPlaces: any[];
 }
 
 class PlacesService {
   async getPopularPlaces(): Promise<Place[]> {
     try {
-      const response = await api.get('/api/feed/popular-places'); // ✅ CORREGIDO
+      const response = await api.get("/api/feed/popular-places"); // ✅ CORREGIDO
       // La API puede devolver { data: [...] } o directamente [...]
-      return Array.isArray(response.data) ? response.data : response.data.data || [];
+      return Array.isArray(response.data)
+        ? response.data
+        : response.data.data || [];
     } catch (error: any) {
-      console.error('Error en getPopularPlaces:', error.response?.data || error.message);
+      console.error(
+        "Error en getPopularPlaces:",
+        error.response?.data || error.message,
+      );
       // En caso de error, devolver array vacío en lugar de lanzar error
       return [];
     }
@@ -39,11 +44,16 @@ class PlacesService {
 
   async getPopularDishes(): Promise<Dish[]> {
     try {
-      const response = await api.get('/api/feed/popular-dishes'); // ✅ Agregado /
+      const response = await api.get("/api/feed/popular-dishes"); // ✅ Agregado /
       // La API puede devolver { data: [...] } o directamente [...]
-      return Array.isArray(response.data) ? response.data : response.data.data || [];
+      return Array.isArray(response.data)
+        ? response.data
+        : response.data.data || [];
     } catch (error: any) {
-      console.error('Error en getPopularDishes:', error.response?.data || error.message);
+      console.error(
+        "Error en getPopularDishes:",
+        error.response?.data || error.message,
+      );
       // En caso de error, devolver array vacío en lugar de lanzar error
       return [];
     }
@@ -54,7 +64,23 @@ class PlacesService {
       const response = await api.get(`/api/places/${id}`);
       return response.data.data || response.data;
     } catch (error: any) {
-      console.error('Error en getPlaceById:', error.response?.data || error.message);
+      console.error(
+        "Error en getPlaceById:",
+        error.response?.data || error.message,
+      );
+      return null;
+    }
+  }
+
+  async getDishById(id: string): Promise<Dish | null> {
+    try {
+      const response = await api.get(`/api/dishes/${id}`);
+      return response.data.data || response.data;
+    } catch (error: any) {
+      console.error(
+        "Error en getDishById:",
+        error.response?.data || error.message,
+      );
       return null;
     }
   }
@@ -63,34 +89,52 @@ class PlacesService {
     try {
       await api.post(`/api/dishes/${dishId}/like`);
     } catch (error: any) {
-      console.error('Error al dar like:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'Error al dar like');
+      console.error(
+        "Error al dar like:",
+        error.response?.data || error.message,
+      );
+      throw new Error(error.response?.data?.message || "Error al dar like");
     }
   }
 
-// En placesService.ts - actualizar el método addReview
+  // En placesService.ts - actualizar el método addReview
 
-async addReview(placeId: string, rating: number, comment: string): Promise<{ message: string; newPoints: number }> {
-  try {
-    const response = await api.post(`/api/places/${placeId}/reviews`, { 
-      rating, 
-      comment 
-    });
-    return response.data;
-  } catch (error: any) {
-    console.error('Error al agregar reseña:', error.response?.data || error.message);
-    throw new Error(error.response?.data?.message || 'Error al agregar reseña');
-  }
-}
-
-    // Agregar estos métodos al servicio existente
-
-  async getNearbyPlaces(lat: number, lng: number, radius: number = 5): Promise<Place[]> {
+  async addReview(
+    placeId: string,
+    rating: number,
+    comment: string,
+  ): Promise<{ message: string; newPoints: number }> {
     try {
-      const response = await api.get(`api/places?lat=${lat}&lng=${lng}&radius=${radius}`);
+      const response = await api.post(`/api/places/${placeId}/reviews`, {
+        rating,
+        comment,
+      });
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Error al agregar reseña:",
+        error.response?.data || error.message,
+      );
+      throw new Error(
+        error.response?.data?.message || "Error al agregar reseña",
+      );
+    }
+  }
+
+  // Agregar estos métodos al servicio existente
+
+  async getNearbyPlaces(
+    lat: number,
+    lng: number,
+    radius: number = 5,
+  ): Promise<Place[]> {
+    try {
+      const response = await api.get(
+        `api/places?lat=${lat}&lng=${lng}&radius=${radius}`,
+      );
       return response.data;
     } catch (error) {
-      console.error('Error fetching nearby places:', error);
+      console.error("Error fetching nearby places:", error);
       throw error;
     }
   }
@@ -100,11 +144,10 @@ async addReview(placeId: string, rating: number, comment: string): Promise<{ mes
       const response = await api.get(`api/places?category=${category}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching places by category:', error);
+      console.error("Error fetching places by category:", error);
       throw error;
     }
   }
-  
 }
 
 export default new PlacesService();

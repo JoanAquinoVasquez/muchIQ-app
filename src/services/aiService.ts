@@ -12,8 +12,8 @@ export interface AIRecommendationResponse {
 
 class AIService {
   // Coordenadas por defecto (Chiclayo, Lambayeque)
-  private readonly DEFAULT_LAT = -6.814744198519895;
-  private readonly DEFAULT_LNG = -79.90752985381165;
+  private readonly DEFAULT_LAT = -6.7726085649176735;
+  private readonly DEFAULT_LNG = -79.84632241544423;
 
   async getRecommendation(query: string, lat?: number, lng?: number): Promise<AIRecommendationResponse> {
     try {

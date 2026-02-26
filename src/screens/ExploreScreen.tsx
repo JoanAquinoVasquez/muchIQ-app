@@ -88,9 +88,13 @@ export default function ExploreScreen() {
     { id: 'all', label: 'Todo', icon: 'grid-outline', color: COLORS.primary },
     { id: 'restaurante', label: 'Restaurantes', icon: 'restaurant-outline', color: COLORS.accent },
     { id: 'museo', label: 'Museos', icon: 'business-outline', color: COLORS.info },
-    { id: 'atractivo turístico', label: 'Turismo', icon: 'map-outline', color: COLORS.success },
+    { id: 'parque', label: 'Parques', icon: 'map-outline', color: COLORS.success },
     { id: 'playa', label: 'Playas', icon: 'water-outline', color: '#00BCD4' },
-    { id: 'café', label: 'Cafés', icon: 'cafe-outline', color: '#795548' },
+    { id: 'mercado', label: 'Mercados', icon: 'storefront-outline', color: '#795548' },
+    // { id: 'sitio arqueologico', label: 'Sitios Arqueologicos', icon: 'image-outline', color: '#795548' },
+    { id: 'reserva natural', label: 'Reservas Naturales', icon: 'leaf-outline', color: '#13868aff' },
+    // { id: 'centro recreacional', label: 'Centros Recreacionales', icon: 'people-outline', color: '#438109ff' },
+    { id: 'alojamiento', label: 'Alojamientos', icon: 'bed-outline', color: '#795548' },
   ];
 
   const filteredPlaces = places.filter(place =>
@@ -264,7 +268,11 @@ export default function ExploreScreen() {
                     animation="fadeInLeft"
                     delay={index * 80}
                   >
-                    <TouchableOpacity style={styles.dishCard} activeOpacity={0.95}>
+                    <TouchableOpacity
+                      style={styles.dishCard}
+                      activeOpacity={0.95}
+                      onPress={() => navigation.navigate('DishDetail', { dishId: dish._id })}
+                    >
                       <Image
                         source={{ uri: dish.imageUrl || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800' }}
                         style={styles.dishCardImage}
@@ -398,8 +406,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   categoryChipActive: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary + '20',
+    borderColor: COLORS.primary + '30',
   },
   categoryChipText: {
     fontSize: TYPOGRAPHY.sm,
@@ -407,7 +415,8 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   categoryChipTextActive: {
-    color: COLORS.textWhite,
+    color: COLORS.primaryDark,
+    fontWeight: TYPOGRAPHY.bold,
   },
   loadingContainer: {
     paddingVertical: SPACING['4xl'],
@@ -488,7 +497,7 @@ const styles = StyleSheet.create({
   },
   placeCategoryBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.primary + '90',
+    backgroundColor: COLORS.primary + '30',
     paddingHorizontal: SPACING.sm,
     paddingVertical: 4,
     borderRadius: RADIUS.sm,

@@ -9,7 +9,7 @@ export default function LanguageToggle() {
 
   return (
     <Animatable.View animation="fadeInDown" duration={800} delay={300}>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.container}
         onPress={toggleLanguage}
         activeOpacity={0.8}
@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
     minWidth: 50,
     alignItems: 'center',
+    overflow: 'hidden',
   },
   activeOption: {
     backgroundColor: COLORS.primary,

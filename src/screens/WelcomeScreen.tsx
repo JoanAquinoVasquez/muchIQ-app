@@ -643,22 +643,24 @@ export default function WelcomeScreen() {
                       key={index}
                       animation="zoomIn"
                       delay={1400 + index * 100}
-                      style={styles.featureCard}
+                      style={styles.featureCardContainer}
                     >
-                      <Animatable.View
-                        animation="pulse"
-                        iterationCount="infinite"
-                        duration={2000 + index * 500}
-                      >
-                        <LinearGradient
-                          colors={[COLORS.primary + '30', COLORS.primaryDark + '50']}
-                          style={styles.featureIcon}
+                      <BlurView intensity={60} tint="dark" style={styles.featureCard}>
+                        <Animatable.View
+                          animation="pulse"
+                          iterationCount="infinite"
+                          duration={2000 + index * 500}
                         >
-                          <Ionicons name={feature.icon as any} size={24} color={COLORS.accent} />
-                        </LinearGradient>
-                      </Animatable.View>
-                      <Text style={styles.featureTitle}>{feature.title}</Text>
-                      <Text style={styles.featureDesc}>{feature.desc}</Text>
+                          <LinearGradient
+                            colors={[COLORS.primary + '30', COLORS.primaryDark + '50']}
+                            style={styles.featureIcon}
+                          >
+                            <Ionicons name={feature.icon as any} size={24} color={COLORS.accent} />
+                          </LinearGradient>
+                        </Animatable.View>
+                        <Text style={styles.featureTitle}>{feature.title}</Text>
+                        <Text style={styles.featureDesc}>{feature.desc}</Text>
+                      </BlurView>
                     </Animatable.View>
                   ))}
                 </View>
@@ -714,22 +716,24 @@ export default function WelcomeScreen() {
                 activeOpacity={0.9}
                 onPress={handleStartAdventure}
               >
-                <LinearGradient
-                  colors={[COLORS.accent, COLORS.accentDark]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.floatingButton}
-                >
-                  <Animatable.View
-                    animation="pulse"
-                    iterationCount="infinite"
-                    duration={2000}
-                    style={styles.floatingButtonContent}
+                <View style={styles.floatingButtonShadow}>
+                  <LinearGradient
+                    colors={[COLORS.accent, COLORS.accentDark]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.floatingButton}
                   >
-                    <Ionicons name="log-in" size={20} color={COLORS.textWhite} />
-                    <Text style={styles.floatingButtonText}>Entrar</Text>
-                  </Animatable.View>
-                </LinearGradient>
+                    <Animatable.View
+                      animation="pulse"
+                      iterationCount="infinite"
+                      duration={2000}
+                      style={styles.floatingButtonContent}
+                    >
+                      <Ionicons name="log-in" size={20} color={COLORS.textWhite} />
+                      <Text style={styles.floatingButtonText}>Entrar</Text>
+                    </Animatable.View>
+                  </LinearGradient>
+                </View>
               </TouchableOpacity>
             </Animated.View>
           )}
@@ -897,8 +901,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: SPACING.md,
     right: SPACING.md,
-    borderRadius: RADIUS.full,
-    overflow: 'hidden',
   },
   badgeBlur: {
     flexDirection: 'row',
@@ -906,6 +908,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.sm,
     paddingVertical: SPACING.xs,
     gap: 4,
+    borderRadius: RADIUS.full,
+    overflow: 'hidden',
   },
   categoryText: {
     fontSize: TYPOGRAPHY.xs,
@@ -980,8 +984,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: SPACING.md,
     right: SPACING.md,
-    borderRadius: RADIUS.full,
-    overflow: 'hidden',
   },
   likesText: {
     fontSize: TYPOGRAPHY.sm,
@@ -1009,12 +1011,15 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
     gap: SPACING.md,
   },
-  featureCard: {
+  featureCardContainer: {
     width: (width - SPACING.lg * 2 - SPACING.md) / 2,
-    backgroundColor: COLORS.overlay,
-    borderRadius: RADIUS.xl,
+    ...SHADOWS.md,
+  },
+  featureCard: {
     padding: SPACING.md,
     alignItems: 'center',
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
   },
   featureIcon: {
     width: 56,
@@ -1039,12 +1044,13 @@ const styles = StyleSheet.create({
   ctaContainer: {
     marginHorizontal: SPACING.lg,
     marginTop: SPACING['2xl'],
-    borderRadius: RADIUS.xl,
-    overflow: 'hidden',
+    ...SHADOWS.lg,
   },
   ctaBlur: {
     padding: SPACING.xl,
     alignItems: 'center',
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
   },
   ctaSubtext: {
     fontSize: TYPOGRAPHY.base,
@@ -1063,10 +1069,14 @@ const styles = StyleSheet.create({
     right: SPACING.lg,
     zIndex: 1000,
   },
-  floatingButton: {
+  floatingButtonShadow: {
     borderRadius: RADIUS.full,
     ...SHADOWS.xl,
     elevation: 8,
+  },
+  floatingButton: {
+    borderRadius: RADIUS.full,
+    overflow: 'hidden',
   },
   floatingButtonContent: {
     flexDirection: 'row',

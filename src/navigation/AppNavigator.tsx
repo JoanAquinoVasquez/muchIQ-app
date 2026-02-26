@@ -11,6 +11,8 @@ import NearbyScreen from '@screens/NearbyScreen';
 import CategoryPlacesScreen from '@screens/CategoryPlacesScreen';
 import AIAssistantScreen from '@screens/AIAssistantScreen';
 import ExploreScreen from '@screens/ExploreScreen';
+import DishDetailScreen from '@screens/DishDetailScreen';
+import EditProfileScreen from '@screens/EditProfileScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -22,8 +24,9 @@ export type RootStackParamList = {
   Profile: undefined;
   Nearby: undefined;
   CategoryPlaces: { category: string };
-  AIAssistant: undefined; 
+  AIAssistant: undefined;
   Explore: undefined;
+  DishDetail: { dishId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,16 +48,18 @@ export default function AppNavigator() {
       <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
       <Stack.Screen name="Rewards" component={RewardsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Nearby" component={NearbyScreen} /> 
+      <Stack.Screen name="Nearby" component={NearbyScreen} />
       <Stack.Screen name="CategoryPlaces" component={CategoryPlacesScreen} />
-      <Stack.Screen 
-        name="AIAssistant" 
+      <Stack.Screen
+        name="AIAssistant"
         component={AIAssistantScreen}
         options={{
           animation: 'slide_from_bottom',
         }}
       />
       <Stack.Screen name="Explore" component={ExploreScreen} />
+      <Stack.Screen name="DishDetail" component={DishDetailScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>
   );
 }

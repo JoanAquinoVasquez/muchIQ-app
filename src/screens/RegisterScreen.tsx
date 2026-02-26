@@ -140,9 +140,19 @@ export default function RegisterScreen() {
     { id: 'museos', label: 'Museos', icon: 'business-outline' },
     { id: 'playas', label: 'Playas', icon: 'water-outline' },
     { id: 'arqueologia', label: 'Arqueología', icon: 'skull-outline' },
-    { id: 'comida', label: 'Comida típica', icon: 'fast-food-outline' },
-    { id: 'artesania', label: 'Artesanía', icon: 'diamond-outline' },
+    { id: 'naturaleza', label: 'Naturaleza', icon: 'leaf-outline' },
+    { id: 'aventura', label: 'Aventura', icon: 'bicycle-outline' },
     { id: 'fotografia', label: 'Fotografía', icon: 'camera-outline' },
+    { id: 'artesania', label: 'Artesanía', icon: 'diamond-outline' },
+    { id: 'compras', label: 'Compras', icon: 'bag-handle-outline' },
+    { id: 'vida_nocturna', label: 'Vida Nocturna', icon: 'moon-outline' },
+    { id: 'relajacion', label: 'Relajación', icon: 'cafe-outline' },
+    { id: 'comida_salada', label: 'Comida Criolla', icon: 'restaurant-outline' },
+    { id: 'pescados', label: 'Pescados y Mariscos', icon: 'fish-outline' },
+    { id: 'carnes', label: 'Carnes y Parrillas', icon: 'bonfire-outline' },
+    { id: 'comida_dulce', label: 'Postres/Dulces', icon: 'ice-cream-outline' },
+    { id: 'clima_calor', label: 'Clima Cálido', icon: 'sunny-outline' },
+    { id: 'clima_frio', label: 'Clima Fresco', icon: 'snow-outline' },
   ];
 
   return (
@@ -185,7 +195,7 @@ export default function RegisterScreen() {
               <Animatable.View animation="fadeInRight" duration={400}>
                 {/* Hero */}
                 <View style={styles.stepHeader}>
-                  <Animatable.Text 
+                  <Animatable.Text
                     animation="bounceIn"
                     style={styles.stepEmoji}
                   >
@@ -235,8 +245,8 @@ export default function RegisterScreen() {
                     error={errors.confirmPassword}
                   />
 
-                  <Animatable.View 
-                    animation="pulse" 
+                  <Animatable.View
+                    animation="pulse"
                     iterationCount="infinite"
                     duration={2000}
                   >
@@ -255,7 +265,7 @@ export default function RegisterScreen() {
               <Animatable.View animation="fadeInRight" duration={400}>
                 {/* Hero */}
                 <View style={styles.stepHeader}>
-                  <Animatable.Text 
+                  <Animatable.Text
                     animation="bounceIn"
                     style={styles.stepEmoji}
                   >
@@ -290,20 +300,20 @@ export default function RegisterScreen() {
                             >
                               {isSelected ? (
                                 <BlurView intensity={60} tint="light" style={styles.chipBlur}>
-                                  <Ionicons 
-                                    name={reason.icon as any} 
-                                    size={18} 
-                                    color={COLORS.textWhite} 
+                                  <Ionicons
+                                    name={reason.icon as any}
+                                    size={18}
+                                    color={COLORS.textWhite}
                                   />
                                   <Text style={styles.chipTextSelected}>{reason.label}</Text>
                                   <Ionicons name="checkmark-circle" size={18} color={COLORS.accent} />
                                 </BlurView>
                               ) : (
                                 <>
-                                  <Ionicons 
-                                    name={reason.icon as any} 
-                                    size={18} 
-                                    color={COLORS.textSecondary} 
+                                  <Ionicons
+                                    name={reason.icon as any}
+                                    size={18}
+                                    color={COLORS.textSecondary}
                                   />
                                   <Text style={styles.chipText}>{reason.label}</Text>
                                 </>
@@ -340,10 +350,10 @@ export default function RegisterScreen() {
                               onPress={() => toggleTaste(interest.id)}
                               activeOpacity={0.7}
                             >
-                              <Ionicons 
-                                name={interest.icon as any} 
-                                size={16} 
-                                color={isSelected ? COLORS.textWhite : COLORS.textSecondary} 
+                              <Ionicons
+                                name={interest.icon as any}
+                                size={16}
+                                color={isSelected ? COLORS.textWhite : COLORS.textSecondary}
                               />
                               <Text style={[
                                 styles.chipTextSmall,
@@ -363,13 +373,13 @@ export default function RegisterScreen() {
                 </Animatable.View>
 
                 {/* Submit Button */}
-                <Animatable.View 
-                  animation="fadeInUp" 
+                <Animatable.View
+                  animation="fadeInUp"
                   delay={600}
                   style={styles.submitContainer}
                 >
-                  <Animatable.View 
-                    animation="pulse" 
+                  <Animatable.View
+                    animation="pulse"
                     iterationCount="infinite"
                     duration={2000}
                   >

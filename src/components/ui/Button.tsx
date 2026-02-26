@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-  TouchableOpacity, 
-  Text, 
-  StyleSheet, 
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
   ActivityIndicator,
   ViewStyle,
   TextStyle,
@@ -47,20 +47,20 @@ export default function Button({
         isOutline && styles.outline,
         isGhost && styles.ghost,
         (disabled || loading) && styles.disabled,
-        style,
+        !isPrimary && style,
       ]}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator 
-          color={isPrimary || isSecondary ? COLORS.textWhite : COLORS.primary} 
+        <ActivityIndicator
+          color={isPrimary || isSecondary ? COLORS.textWhite : COLORS.primary}
         />
       ) : (
         <>
           {icon}
-          <Text 
+          <Text
             style={[
               styles.text,
               styles[`text${size.charAt(0).toUpperCase() + size.slice(1)}` as keyof typeof styles],
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
   },
   gradient: {
     borderRadius: RADIUS.md,
+    overflow: 'hidden',
   },
   sm: {
     paddingHorizontal: SPACING.md,

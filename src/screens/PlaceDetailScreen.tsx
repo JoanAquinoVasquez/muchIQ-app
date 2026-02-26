@@ -584,15 +584,15 @@ const styles = StyleSheet.create({
     gap: SPACING.xs,
   },
   tag: {
-    backgroundColor: COLORS.overlay,
-    paddingHorizontal: SPACING.sm,
+    backgroundColor: COLORS.primary + '20',
+    paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
     borderRadius: RADIUS.full,
   },
   tagText: {
     fontSize: TYPOGRAPHY.xs,
-    color: COLORS.textPrimary,
-    fontWeight: TYPOGRAPHY.medium,
+    color: COLORS.primaryDark,
+    fontWeight: TYPOGRAPHY.semibold,
   },
   reviewItem: {
     marginBottom: SPACING.md,

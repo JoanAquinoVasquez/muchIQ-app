@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import * as Location from 'expo-location';
 
 import Card from '@components/ui/Card';
 import BottomNavigation from '@components/BottomNavigation';
@@ -28,23 +29,39 @@ export default function NearbyScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  
+  const [userLocation, setUserLocation] = useState(USER_LOCATION);
 
   useEffect(() => {
-    loadNearbyPlaces();
+    getUserLocation();
   }, []);
 
-  const loadNearbyPlaces = async () => {
+  const getUserLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        // Usar ubicación por defecto si deniega
+        loadNearbyPlaces(USER_LOCATION.lat, USER_LOCATION.lng);
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const newLoc = { lat: location.coords.latitude, lng: location.coords.longitude };
+      setUserLocation(newLoc);
+      loadNearbyPlaces(newLoc.lat, newLoc.lng);
+    } catch (error) {
+      console.error('Error getting location:', error);
+      // Fallback
+      loadNearbyPlaces(USER_LOCATION.lat, USER_LOCATION.lng);
+    }
+  };
+
+  const loadNearbyPlaces = async (lat: number, lng: number) => {
     setLoading(true);
     try {
-      const data = await placesService.getNearbyPlaces(
-        USER_LOCATION.lat,
-        USER_LOCATION.lng,
-        5
-      );
+      const data = await placesService.getNearbyPlaces(lat, lng, 5);
       setPlaces(data);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching places:', error);
     } finally {
       setLoading(false);
     }
@@ -52,30 +69,30 @@ export default function NearbyScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadNearbyPlaces();
+    await loadNearbyPlaces(userLocation.lat, userLocation.lng);
     setRefreshing(false);
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-        <LinearGradient
+      <LinearGradient
         colors={[COLORS.primary, COLORS.primary + 'DD']}
         style={styles.header}
+      >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
         >
-        <TouchableOpacity 
-            onPress={() => navigation.goBack()} 
-            style={styles.backButton}
-        >
-            <Ionicons name="arrow-back" size={24} color={COLORS.textWhite} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.textWhite} />
         </TouchableOpacity>
-        
+
         <View style={styles.headerContent}>
-            <Ionicons name="map" size={28} color={COLORS.textWhite} />
-            <Text style={styles.headerTitle}>Cerca de ti</Text>
+          <Ionicons name="map" size={28} color={COLORS.textWhite} />
+          <Text style={styles.headerTitle}>Cerca de ti</Text>
         </View>
-        
+
         <View style={styles.placeholder} />
-        </LinearGradient>
+      </LinearGradient>
 
       <ScrollView
         style={styles.scrollView}
@@ -120,7 +137,7 @@ export default function NearbyScreen() {
                 <View style={styles.placeInfo}>
                   <Text style={styles.placeName}>{place.name}</Text>
                   <Text style={styles.placeCategory}>{place.category}</Text>
-                  
+
                   <View style={styles.placeFooter}>
                     <View style={styles.rating}>
                       <Ionicons name="star" size={14} color={COLORS.accent} />
@@ -152,7 +169,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-    header: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -163,13 +180,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    },
-    // Agregar nuevo estilo
-    headerContent: {
+  },
+  // Agregar nuevo estilo
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    },
+  },
   backButton: {
     width: 40,
     height: 40,
