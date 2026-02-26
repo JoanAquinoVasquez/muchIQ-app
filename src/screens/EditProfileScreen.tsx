@@ -15,6 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import * as Animatable from 'react-native-animatable';
 
 import profileService, { UserProfile } from '@services/profileService';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
@@ -23,6 +25,7 @@ export default function EditProfileScreen() {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const [profile, setProfile] = useState<UserProfile | null>(null);
 
     // Form states
@@ -93,12 +96,20 @@ export default function EditProfileScreen() {
                 isTourist,
                 tastes
             });
-            Alert.alert('Éxito', 'Perfil actualizado correctamente', [
-                { text: 'OK', onPress: () => navigation.goBack() }
-            ]);
+
+            // Mostramos la animación de éxito propia de la app
+            setShowSuccess(true);
+
+            // Y luego de 2 segundos regresamos a la pantalla de perfil
+            setTimeout(() => {
+                setShowSuccess(false);
+                navigation.goBack();
+            }, 2000);
+
         } catch (error: any) {
             console.error('Error updating profile:', error);
-            Alert.alert('Aviso', 'La funcionalidad de actualización podría no estar activa en el backend. ' + error.message);
+            // Si hay error mostramos alerta
+            Alert.alert('Error', 'La funcionalidad de actualización podría no estar activa. ' + error.message);
         } finally {
             setSaving(false);
         }
@@ -232,6 +243,35 @@ export default function EditProfileScreen() {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+
+            {/* Custom Success Overlay (Look Native) */}
+            {showSuccess && (
+                <View style={[StyleSheet.absoluteFill, { zIndex: 9999, justifyContent: 'center', alignItems: 'center' }]}>
+                    <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
+                    <Animatable.View
+                        animation="zoomIn"
+                        duration={300}
+                        style={{
+                            backgroundColor: COLORS.surface,
+                            padding: SPACING.xl,
+                            borderRadius: RADIUS.lg,
+                            alignItems: 'center',
+                            width: '80%',
+                            maxWidth: 320,
+                            ...SHADOWS.lg
+                        }}
+                    >
+                        <Ionicons name="checkmark-circle" size={80} color={COLORS.primary} style={{ marginBottom: SPACING.md }} />
+                        <Text style={{ fontSize: TYPOGRAPHY.xl, fontWeight: TYPOGRAPHY.bold, color: COLORS.textPrimary }}>
+                            ¡Todo Listo!
+                        </Text>
+                        <Text style={{ fontSize: TYPOGRAPHY.base, color: COLORS.textSecondary, marginTop: SPACING.xs, textAlign: 'center' }}>
+                            Tu perfil ha sido actualizado exitosamente.
+                        </Text>
+                    </Animatable.View>
+                </View>
+            )}
+
         </SafeAreaView>
     );
 }

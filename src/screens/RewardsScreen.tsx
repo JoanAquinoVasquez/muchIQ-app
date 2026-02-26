@@ -11,9 +11,10 @@ import {
   ActivityIndicator,
   RefreshControl,
   Platform,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
@@ -37,9 +38,11 @@ export default function RewardsScreen() {
   const [showQRModal, setShowQRModal] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+    }, [])
+  );
 
   const loadData = async () => {
     setLoading(true);
@@ -72,19 +75,24 @@ export default function RewardsScreen() {
 
     setRedeeming(true);
     try {
-      // SIMULACIÓN DIRECTA - sin llamadas reales
+      // Llamada real al backend
+      const response = await rewardsService.redeemReward(reward._id);
+
       setShowQRModal(true);
       setSelectedReward(null);
-      
-      // Actualizar puntos del usuario localmente
-      setUser({ ...user, points: user.points - reward.pointsCost });
-      
+
+      // Actualizar puntos del usuario localmente y en el almacenamiento
+      const finalPoints = user.points - reward.pointsCost;
+      setUser({ ...user, points: finalPoints });
+      await authService.updateCurrentUser({ points: finalPoints });
+
       // Actualizar stock de la recompensa
-      setRewards(rewards.map(r => 
+      setRewards(rewards.map(r =>
         r._id === reward._id ? { ...r, stock: r.stock - 1 } : r
       ));
     } catch (error: any) {
       console.error('Error redeeming reward:', error);
+      Alert.alert('Error', error.message || 'No se pudo canjear la recompensa');
     } finally {
       setRedeeming(false);
     }
@@ -107,7 +115,7 @@ export default function RewardsScreen() {
           style={[styles.rewardCard, !canAfford && styles.rewardCardDisabled]}
         >
           <Image source={{ uri: reward.imageUrl }} style={styles.rewardImage} />
-          
+
           <LinearGradient
             colors={['transparent', 'rgba(0,0,0,0.9)']}
             style={styles.rewardGradient}
@@ -121,10 +129,10 @@ export default function RewardsScreen() {
             <View style={styles.rewardContent}>
               <View style={styles.rewardHeader}>
                 <View style={styles.categoryBadge}>
-                  <Ionicons 
-                    name={getCategoryIcon(partner?.category || 'general')} 
-                    size={12} 
-                    color={COLORS.accent} 
+                  <Ionicons
+                    name={getCategoryIcon(partner?.category || 'general')}
+                    size={12}
+                    color={COLORS.accent}
                   />
                   <Text style={styles.categoryText}>{partner?.category || 'General'}</Text>
                 </View>
@@ -144,7 +152,7 @@ export default function RewardsScreen() {
                   <Text style={styles.pointsText}>{reward.pointsCost}</Text>
                   <Text style={styles.pointsLabel}>puntos</Text>
                 </View>
-                
+
                 {reward.validUntil && (
                   <View style={styles.validContainer}>
                     <Ionicons name="time-outline" size={12} color={COLORS.textLight} />
@@ -187,13 +195,13 @@ export default function RewardsScreen() {
       'shopping': 'bag-handle',
       'general': 'star',
     };
-    
+
     for (const [key, icon] of Object.entries(icons)) {
       if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
         return icon;
       }
     }
-    
+
     return 'gift';
   };
 
@@ -241,7 +249,7 @@ export default function RewardsScreen() {
         >
           <Ionicons name="information-circle" size={24} color={COLORS.accent} />
           <Text style={styles.infoBannerText}>
-            ¡Tienes <Text style={styles.infoBannerHighlight}>{user?.points || 0} puntos</Text>! 
+            ¡Tienes <Text style={styles.infoBannerHighlight}>{user?.points || 0} puntos</Text>!
             Canjéalos por descuentos exclusivos en restaurantes, museos y más.
           </Text>
         </LinearGradient>
@@ -351,7 +359,7 @@ export default function RewardsScreen() {
                   <TouchableOpacity
                     style={[
                       styles.redeemButton,
-                      (redeeming || !user || user.points < selectedReward.pointsCost) && 
+                      (redeeming || !user || user.points < selectedReward.pointsCost) &&
                       styles.redeemButtonDisabled,
                     ]}
                     onPress={() => handleRedeemReward(selectedReward)}

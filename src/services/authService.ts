@@ -1,5 +1,5 @@
-import api from './api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from "./api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface LoginCredentials {
   email: string;
@@ -42,10 +42,13 @@ export interface AuthResponse {
 class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await api.post<ApiAuthResponse>('/api/users/login', credentials);
-      
-      console.log('Login response:', response.data); // Para debugging
-      
+      const response = await api.post<ApiAuthResponse>(
+        "/api/users/login",
+        credentials,
+      );
+
+      console.log("Login response:", response.data); // Para debugging
+
       // ✅ Transformar la respuesta al formato interno
       const authData: AuthResponse = {
         token: response.data.token,
@@ -55,33 +58,37 @@ class AuthService {
           email: response.data.email,
           isTourist: response.data.isTourist || false,
           points: response.data.points || 0,
-        }
+        },
       };
-      
+
       // Guardar token y usuario
-      await AsyncStorage.setItem('authToken', authData.token);
-      await AsyncStorage.setItem('user', JSON.stringify(authData.user));
-      
+      await AsyncStorage.setItem("authToken", authData.token);
+      await AsyncStorage.setItem("user", JSON.stringify(authData.user));
+
       return authData;
     } catch (error: any) {
-      console.error('Login error:', error.response?.data || error.message);
-      
+      console.error("Login error:", error.response?.data || error.message);
+
       // Mensaje de error más descriptivo
-      const errorMessage = error.response?.data?.message 
-        || error.response?.data?.error
-        || error.message 
-        || 'Error al iniciar sesión';
-      
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Error al iniciar sesión";
+
       throw new Error(errorMessage);
     }
   }
 
   async register(data: RegisterData): Promise<AuthResponse> {
     try {
-      const response = await api.post<ApiAuthResponse>('/api/users/register', data);
-      
-      console.log('Register response:', response.data); // Para debugging
-      
+      const response = await api.post<ApiAuthResponse>(
+        "/api/users/register",
+        data,
+      );
+
+      console.log("Register response:", response.data); // Para debugging
+
       // ✅ Transformar la respuesta al formato interno
       const authData: AuthResponse = {
         token: response.data.token,
@@ -91,38 +98,50 @@ class AuthService {
           email: response.data.email,
           isTourist: response.data.isTourist || false,
           points: response.data.points || 0,
-        }
+        },
       };
-      
+
       // Guardar token y usuario
-      await AsyncStorage.setItem('authToken', authData.token);
-      await AsyncStorage.setItem('user', JSON.stringify(authData.user));
-      
+      await AsyncStorage.setItem("authToken", authData.token);
+      await AsyncStorage.setItem("user", JSON.stringify(authData.user));
+
       return authData;
     } catch (error: any) {
-      console.error('Register error:', error.response?.data || error.message);
-      
-      const errorMessage = error.response?.data?.message 
-        || error.response?.data?.error
-        || error.message 
-        || 'Error al registrarse';
-      
+      console.error("Register error:", error.response?.data || error.message);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Error al registrarse";
+
       throw new Error(errorMessage);
     }
   }
 
   async logout(): Promise<void> {
-    await AsyncStorage.removeItem('authToken');
-    await AsyncStorage.removeItem('user');
+    await AsyncStorage.removeItem("authToken");
+    await AsyncStorage.removeItem("user");
   }
 
   async getCurrentUser() {
-    const userString = await AsyncStorage.getItem('user');
+    const userString = await AsyncStorage.getItem("user");
     return userString ? JSON.parse(userString) : null;
   }
 
+  async updateCurrentUser(updates: Partial<AuthResponse["user"]>) {
+    const userString = await AsyncStorage.getItem("user");
+    if (userString) {
+      const user = JSON.parse(userString);
+      const updatedUser = { ...user, ...updates };
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+      return updatedUser;
+    }
+    return null;
+  }
+
   async isAuthenticated(): Promise<boolean> {
-    const token = await AsyncStorage.getItem('authToken');
+    const token = await AsyncStorage.getItem("authToken");
     return !!token;
   }
 }
