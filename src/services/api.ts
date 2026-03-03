@@ -2,7 +2,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ✅ SIN barra diagonal al final
-const API_BASE_URL = 'https://api-hackaton-lambayeque.onrender.com';
+const API_BASE_URL = 'http://54.197.184.138:5000';
+// const API_BASE_URL = 'https://api-hackaton-lambayeque.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
