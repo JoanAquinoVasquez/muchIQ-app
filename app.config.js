@@ -47,6 +47,18 @@ export default {
       useNextNotificationsApi: true,
       softwareKeyboardLayoutMode: "pan"
     },
+    web: {
+      favicon: "./assets/favicon.png",
+      bundler: "metro",
+      name: "MuchIQ",
+      shortName: "MuchIQ",
+      themeColor: "#1A9B8E",
+      backgroundColor: "#1A9B8E",
+      display: "standalone",
+      orientation: "portrait",
+      dir: "auto",
+      lang: "es-PE"
+    },
     plugins: [
       [
         "expo-av",

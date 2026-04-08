@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import FallbackImage from '@components/ui/FallbackImage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
@@ -226,7 +227,7 @@ export default function HomeScreen() {
                 >
                   <Card style={styles.placeCard}>
                     <View style={styles.placeImageContainer}>
-                      <Image
+                      <FallbackImage
                         source={{
                           uri: place.photos?.[0] || 'https://images.pexels.com/photos/258159/pexels-photo-258159.jpeg?auto=compress&cs=tinysrgb&w=800'
                         }}
@@ -302,7 +303,7 @@ export default function HomeScreen() {
                     style={styles.dishCard}
                     activeOpacity={0.95}
                   >
-                    <Image
+                    <FallbackImage
                       source={{
                         uri: dish.imageUrl || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800'
                       }}

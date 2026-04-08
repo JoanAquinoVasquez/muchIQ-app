@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import FallbackImage from '@components/ui/FallbackImage';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
@@ -158,7 +159,7 @@ export default function PlaceDetailScreen() {
                 }}
               >
                 {place.photos.map((photo, index) => (
-                  <Image
+                  <FallbackImage
                     key={index}
                     source={{ uri: photo }}
                     style={styles.placeImage}
@@ -180,7 +181,7 @@ export default function PlaceDetailScreen() {
               )}
             </>
           ) : (
-            <Image
+            <FallbackImage
               source={{ uri: 'https://images.unsplash.com/photo-1566127992631-137a642a90f4?w=800' }}
               style={styles.placeImage}
             />
