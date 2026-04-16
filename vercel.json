@@ -1,0 +1,5 @@
+{
+    "name": "muchiq-mobile",
+    "cleanUrls": true,
+    "outputDirectory": "dist"
+}
