@@ -21,7 +21,7 @@ import * as Animatable from 'react-native-animatable';
 
 import Card from '@components/ui/Card';
 import AddReviewModal from '@components/AddReviewModal';
-import placesService, { Place } from '@services/placesService';
+import placesService, { Place, Dish } from '@services/placesService';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
 import { RootStackParamList } from '@navigation/AppNavigator';
 
@@ -44,6 +44,7 @@ export default function PlaceDetailScreen() {
   const { placeId } = route.params;
 
   const [place, setPlace] = useState<Place | null>(null);
+  const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -55,8 +56,12 @@ export default function PlaceDetailScreen() {
 
   const loadPlaceDetail = async () => {
     try {
-      const data = await placesService.getPlaceById(placeId);
+      const [data, placeDishes] = await Promise.all([
+        placesService.getPlaceById(placeId),
+        placesService.getDishesByPlaceId(placeId)
+      ]);
       setPlace(data);
+      setDishes(placeDishes);
     } catch (error) {
       console.error('Error loading place:', error);
     } finally {
@@ -273,6 +278,46 @@ export default function PlaceDetailScreen() {
                     </View>
                   ))}
                 </View>
+              </Card>
+            </Animatable.View>
+          )}
+
+          {/* Dishes */}
+          {(place.category?.toLowerCase() === 'restaurante' || (dishes && dishes.length > 0)) && (
+            <Animatable.View animation="fadeInUp" delay={650}>
+              <Card style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Ionicons name="restaurant" size={20} color={COLORS.accent} />
+                  <Text style={styles.sectionTitle}>Platos que ofrece</Text>
+                </View>
+                {dishes && dishes.length > 0 ? (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginHorizontal: -SPACING.md}} contentContainerStyle={{paddingHorizontal: SPACING.md}}>
+                        {dishes.map((dish, index) => (
+                            <TouchableOpacity
+                                key={dish._id || index}
+                                style={styles.dishCard}
+                                onPress={() => navigation.navigate('DishDetail', { dishId: dish._id })}
+                            >
+                                <FallbackImage
+                                    source={{ uri: dish.imageUrl || 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800' }}
+                                    style={styles.dishImage}
+                                />
+                                <View style={styles.dishInfo}>
+                                    <Text style={styles.dishName} numberOfLines={2}>{dish.name}</Text>
+                                    <View style={styles.dishFooter}>
+                                      <Ionicons name="heart" size={14} color={COLORS.error} />
+                                      <Text style={styles.dishLikesText}>{dish.likes || 0}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+                ) : (
+                    <View style={{alignItems: 'center', paddingVertical: SPACING.lg}}>
+                        <Ionicons name="restaurant-outline" size={32} color={COLORS.textSecondary} style={{marginBottom: SPACING.xs}} />
+                        <Text style={{color: COLORS.textSecondary, textAlign: 'center'}}>No hay platos registrados para este lugar aún.</Text>
+                    </View>
+                )}
               </Card>
             </Animatable.View>
           )}
@@ -688,4 +733,36 @@ const styles = StyleSheet.create({
   bottomSpacer: {
     height: SPACING['2xl'],
   },
-});
+  dishCard: {
+    width: 140,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    marginRight: SPACING.md,
+    marginBottom: SPACING.md,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  dishImage: {
+    width: '100%',
+    height: 100,
+  },
+  dishInfo: {
+    padding: SPACING.sm,
+  },
+  dishName: {
+    fontSize: TYPOGRAPHY.sm,
+    fontWeight: TYPOGRAPHY.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.xs,
+  },
+  dishFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  dishLikesText: {
+    fontSize: TYPOGRAPHY.xs,
+    color: COLORS.textSecondary,
+  },
+});

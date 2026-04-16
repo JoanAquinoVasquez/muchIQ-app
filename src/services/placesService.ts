@@ -85,6 +85,19 @@ class PlacesService {
     }
   }
 
+  async getDishesByPlaceId(placeId: string): Promise<Dish[]> {
+    try {
+      const response = await api.get(`/api/places/${placeId}/dishes`);
+      return response.data;
+    } catch (error: any) {
+      console.error(
+        "Error en getDishesByPlaceId:",
+        error.response?.data || error.message,
+      );
+      return [];
+    }
+  }
+
   async likeDish(dishId: string): Promise<void> {
     try {
       await api.post(`/api/dishes/${dishId}/like`);

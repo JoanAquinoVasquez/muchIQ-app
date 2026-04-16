@@ -210,7 +210,7 @@ export default function HomeScreen() {
           <View style={styles.feedSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Descubre Lambayeque</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
                 <Text style={styles.seeAll}>Ver todo</Text>
               </TouchableOpacity>
             </View>
@@ -283,7 +283,7 @@ export default function HomeScreen() {
           <View style={styles.feedSection}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Sabores del Norte</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Explore')}>
                 <Text style={styles.seeAll}>Ver todo</Text>
               </TouchableOpacity>
             </View>
@@ -302,6 +302,7 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     style={styles.dishCard}
                     activeOpacity={0.95}
+                    onPress={() => navigation.navigate('DishDetail', { dishId: dish._id })}
                   >
                     <FallbackImage
                       source={{
