@@ -27,9 +27,12 @@ export type RootStackParamList = {
   AIAssistant: undefined;
   Explore: undefined;
   DishDetail: { dishId: string };
+  EditProfile: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const APP_NAME = 'MuchIQ';
 
 export default function AppNavigator() {
   return (
@@ -41,25 +44,74 @@ export default function AppNavigator() {
         contentStyle: { backgroundColor: '#F8F9FA' },
       }}
     >
-      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
-      <Stack.Screen name="Rewards" component={RewardsScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Nearby" component={NearbyScreen} />
-      <Stack.Screen name="CategoryPlaces" component={CategoryPlacesScreen} />
+      <Stack.Screen
+        name="Welcome"
+        component={WelcomeScreen}
+        options={{ title: `${APP_NAME} — Descubre Lambayeque` }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ title: `Iniciar Sesión — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{ title: `Crear Cuenta — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ title: `Inicio — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="PlaceDetail"
+        component={PlaceDetailScreen}
+        options={{ title: `Detalle del Lugar — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="Rewards"
+        component={RewardsScreen}
+        options={{ title: `Mis Recompensas — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: `Mi Perfil — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="Nearby"
+        component={NearbyScreen}
+        options={{ title: `Lugares Cercanos — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="CategoryPlaces"
+        component={CategoryPlacesScreen}
+        options={{ title: `Explorar Categoría — ${APP_NAME}` }}
+      />
       <Stack.Screen
         name="AIAssistant"
         component={AIAssistantScreen}
         options={{
+          title: `Asistente IA — ${APP_NAME}`,
           animation: 'slide_from_bottom',
         }}
       />
-      <Stack.Screen name="Explore" component={ExploreScreen} />
-      <Stack.Screen name="DishDetail" component={DishDetailScreen} />
-      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen
+        name="Explore"
+        component={ExploreScreen}
+        options={{ title: `Explorar — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="DishDetail"
+        component={DishDetailScreen}
+        options={{ title: `Detalle del Platillo — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{ title: `Editar Perfil — ${APP_NAME}` }}
+      />
     </Stack.Navigator>
   );
 }
