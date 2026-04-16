@@ -18,6 +18,7 @@ import { RootStackParamList } from '@navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import * as Location from 'expo-location';
 
 import Card from '@components/ui/Card';
 import AppHeader from '@components/AppHeader';
@@ -40,6 +41,7 @@ export default function HomeScreen() {
   const [feedDishes, setFeedDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Animaciones
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -47,10 +49,27 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadUserData();
-    loadFeedData();
+    getUserLocationAndFeed();
     startPulseAnimation();
     startGlowAnimation();
   }, []);
+
+  const getUserLocationAndFeed = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const location = await Location.getCurrentPositionAsync({});
+        const coords = { lat: location.coords.latitude, lng: location.coords.longitude };
+        setUserLocation(coords);
+        loadFeedData(coords.lat, coords.lng);
+      } else {
+        loadFeedData();
+      }
+    } catch (error) {
+      console.error('Error getting location for home:', error);
+      loadFeedData();
+    }
+  };
 
   const startPulseAnimation = () => {
     Animated.loop(
@@ -91,11 +110,11 @@ export default function HomeScreen() {
     setUser(currentUser);
   };
 
-  const loadFeedData = async () => {
+  const loadFeedData = async (lat?: number, lng?: number) => {
     setLoading(true);
     try {
       const [places, dishes] = await Promise.all([
-        placesService.getPopularPlaces(),
+        placesService.getPopularPlaces(lat, lng),
         placesService.getPopularDishes(),
       ]);
       setFeedPlaces(places.slice(0, 10));
@@ -109,7 +128,11 @@ export default function HomeScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadFeedData();
+    if (userLocation) {
+      await loadFeedData(userLocation.lat, userLocation.lng);
+    } else {
+      await getUserLocationAndFeed();
+    }
     setRefreshing(false);
   };
 
@@ -265,7 +288,9 @@ export default function HomeScreen() {
                           <View style={styles.distanceContainer}>
                             <Ionicons name="navigate" size={12} color={COLORS.primary} />
                             <Text style={styles.distance}>
-                              {place.distance.toFixed(1)} km
+                              {place.distance < 1 
+                                ? `${(place.distance * 1000).toFixed(0)} m` 
+                                : `${place.distance.toFixed(1)} km`}
                             </Text>
                           </View>
                         )}

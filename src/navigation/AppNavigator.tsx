@@ -13,6 +13,7 @@ import AIAssistantScreen from '@screens/AIAssistantScreen';
 import ExploreScreen from '@screens/ExploreScreen';
 import DishDetailScreen from '@screens/DishDetailScreen';
 import EditProfileScreen from '@screens/EditProfileScreen';
+import MapScreen from '@screens/MapScreen';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -28,6 +29,7 @@ export type RootStackParamList = {
   Explore: undefined;
   DishDetail: { dishId: string };
   EditProfile: undefined;
+  Map: { placeName: string; latitude: number; longitude: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -111,6 +113,11 @@ export default function AppNavigator() {
         name="EditProfile"
         component={EditProfileScreen}
         options={{ title: `Editar Perfil — ${APP_NAME}` }}
+      />
+      <Stack.Screen
+        name="Map"
+        component={MapScreen}
+        options={{ title: `Mapa — ${APP_NAME}`, animation: 'fade' }}
       />
     </Stack.Navigator>
   );

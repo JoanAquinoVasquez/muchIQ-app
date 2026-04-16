@@ -6,8 +6,10 @@ export interface Place {
   description: string;
   category: string;
   address: string;
-  longitude: number;
-  latitude: number;
+  location?: {
+    type: string;
+    coordinates: number[]; // [longitude, latitude]
+  };
   tags: string[];
   photos: string[];
   rating?: number;
@@ -25,9 +27,10 @@ export interface Dish {
 }
 
 class PlacesService {
-  async getPopularPlaces(): Promise<Place[]> {
+  async getPopularPlaces(lat?: number, lng?: number): Promise<Place[]> {
     try {
-      const response = await api.get("/api/feed/popular-places"); // ✅ CORREGIDO
+      const url = lat && lng ? `/api/feed/popular-places?lat=${lat}&lng=${lng}` : "/api/feed/popular-places";
+      const response = await api.get(url); // ✅ CORREGIDO
       // La API puede devolver { data: [...] } o directamente [...]
       return Array.isArray(response.data)
         ? response.data
@@ -152,9 +155,12 @@ class PlacesService {
     }
   }
 
-  async getPlacesByCategory(category: string): Promise<Place[]> {
+  async getPlacesByCategory(category: string, lat?: number, lng?: number): Promise<Place[]> {
     try {
-      const response = await api.get(`api/places?category=${category}`);
+      const url = lat && lng 
+        ? `api/places?category=${category}&lat=${lat}&lng=${lng}` 
+        : `api/places?category=${category}`;
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       console.error("Error fetching places by category:", error);

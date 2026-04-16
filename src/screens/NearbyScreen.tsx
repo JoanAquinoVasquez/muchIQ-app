@@ -148,7 +148,9 @@ export default function NearbyScreen() {
                     <View style={styles.distance}>
                       <Ionicons name="navigate" size={12} color={COLORS.primary} />
                       <Text style={styles.distanceText}>
-                        {(place.distance || 0).toFixed(1)} km
+                        {place.distance !== undefined && place.distance < 1 
+                          ? `${(place.distance * 1000).toFixed(0)} m` 
+                          : `${(place.distance || 0).toFixed(1)} km`}
                       </Text>
                     </View>
                   </View>

@@ -18,6 +18,7 @@ import { RootStackParamList } from '@navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import * as Location from 'expo-location';
 
 import BottomNavigation from '@components/BottomNavigation';
 import placesService, { Place, Dish } from '@services/placesService';
@@ -34,14 +35,32 @@ export default function ExploreScreen() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Animación del botón AI
   const aiButtonScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    loadData();
+    getUserLocationAndData();
     startAIButtonAnimation();
   }, [selectedCategory]);
+
+  const getUserLocationAndData = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const location = await Location.getCurrentPositionAsync({});
+        const coords = { lat: location.coords.latitude, lng: location.coords.longitude };
+        setUserLocation(coords);
+        loadData(coords.lat, coords.lng);
+      } else {
+        loadData();
+      }
+    } catch (error) {
+      console.error('Error getting location for explore:', error);
+      loadData();
+    }
+  };
 
   const startAIButtonAnimation = () => {
     Animated.loop(
@@ -60,13 +79,13 @@ export default function ExploreScreen() {
     ).start();
   };
 
-  const loadData = async () => {
+  const loadData = async (lat?: number, lng?: number) => {
     setLoading(true);
     try {
       const [placesData, dishesData] = await Promise.all([
         selectedCategory === 'all'
-          ? placesService.getPopularPlaces()
-          : placesService.getPlacesByCategory(selectedCategory),
+          ? placesService.getPopularPlaces(lat, lng)
+          : placesService.getPlacesByCategory(selectedCategory, lat, lng),
         placesService.getPopularDishes(),
       ]);
       setPlaces(placesData);
@@ -241,6 +260,17 @@ export default function ExploreScreen() {
                               <Text style={styles.placeCardRating}>
                                 {place.rating?.toFixed(1) || '4.8'}
                               </Text>
+                              {place.distance !== undefined && (
+                                <>
+                                  <View style={styles.footerDivider} />
+                                  <Ionicons name="navigate" size={10} color={COLORS.textWhite} />
+                                  <Text style={styles.placeCardDistance}>
+                                    {place.distance < 1 
+                                      ? `${(place.distance * 1000).toFixed(0)} m` 
+                                      : `${place.distance.toFixed(1)} km`}
+                                  </Text>
+                                </>
+                              )}
                             </View>
                           </View>
                         </LinearGradient>
@@ -520,6 +550,17 @@ const styles = StyleSheet.create({
   placeCardRating: {
     fontSize: TYPOGRAPHY.xs,
     fontWeight: TYPOGRAPHY.semibold,
+    color: COLORS.textWhite,
+  },
+  footerDivider: {
+    width: 1,
+    height: 10,
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    marginHorizontal: 4,
+  },
+  placeCardDistance: {
+    fontSize: 10,
+    fontWeight: TYPOGRAPHY.medium,
     color: COLORS.textWhite,
   },
   dishCard: {

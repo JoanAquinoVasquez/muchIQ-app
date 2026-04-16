@@ -18,6 +18,7 @@ import FallbackImage from '@components/ui/FallbackImage';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import * as Location from 'expo-location';
 
 import Card from '@components/ui/Card';
 import AddReviewModal from '@components/AddReviewModal';
@@ -44,15 +45,29 @@ export default function PlaceDetailScreen() {
   const { placeId } = route.params;
 
   const [place, setPlace] = useState<Place | null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
+  const [userDistance, setUserDistance] = useState<number | null>(null);
 
   useEffect(() => {
     loadPlaceDetail();
   }, [placeId]);
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radio de la tierra en km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
 
   const loadPlaceDetail = async () => {
     try {
@@ -60,12 +75,29 @@ export default function PlaceDetailScreen() {
         placesService.getPlaceById(placeId),
         placesService.getDishesByPlaceId(placeId)
       ]);
-      setPlace(data);
-      setDishes(placeDishes);
+      
+      if (data) {
+        setPlace(data);
+        setReviews((data as any).reviews || []);
+        setDishes(placeDishes);
+
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+           const loc = await Location.getCurrentPositionAsync({});
+           if (data.location?.coordinates) {
+             const d = calculateDistance(
+               loc.coords.latitude, loc.coords.longitude,
+               data.location.coordinates[1], data.location.coordinates[0]
+             );
+             setUserDistance(d);
+           }
+        }
+      }
     } catch (error) {
       console.error('Error loading place:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -79,14 +111,12 @@ export default function PlaceDetailScreen() {
     try {
       const result = await placesService.addReview(placeId, rating, comment);
 
-      // Mostrar mensaje de éxito con puntos ganados
       Alert.alert(
         '¡Reseña publicada! 🎉',
         `${result.message}\n\n+${result.newPoints} puntos ganados`,
         [{ text: 'Genial', style: 'default' }]
       );
 
-      // Recargar los detalles del lugar
       await loadPlaceDetail();
     } catch (error: any) {
       throw error;
@@ -121,11 +151,8 @@ export default function PlaceDetailScreen() {
     );
   }
 
-  const reviews = (place as any).reviews || [];
-
   return (
     <View style={styles.container}>
-      {/* Header Flotante */}
       <SafeAreaView edges={['top']} style={styles.headerContainer}>
         <LinearGradient
           colors={['rgba(0,0,0,0.7)', 'transparent']}
@@ -150,7 +177,6 @@ export default function PlaceDetailScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* Image Gallery */}
         <View style={styles.imageContainer}>
           {place.photos && place.photos.length > 0 ? (
             <>
@@ -193,24 +219,31 @@ export default function PlaceDetailScreen() {
           )}
         </View>
 
-        {/* Content */}
         <View style={styles.content}>
-          {/* Title and Rating */}
           <Animatable.View animation="fadeInUp" delay={200}>
             <View style={styles.titleSection}>
-              <View style={styles.categoryBadge}>
-                <Ionicons
-                  name={getCategoryIcon(place.category)}
-                  size={14}
-                  color={COLORS.primary}
-                />
-                <Text style={styles.categoryText}>{place.category}</Text>
+              <View style={styles.headerInfo}>
+                <Text style={styles.name}>{place.name}</Text>
+                <View style={styles.headerBadgeRow}>
+                  <View style={styles.categoryBadge}>
+                    <Ionicons name={getCategoryIcon(place.category)} size={12} color={COLORS.primary} />
+                    <Text style={styles.categoryText}>{place.category}</Text>
+                  </View>
+                  {userDistance !== null && (
+                    <View style={styles.distanceBadge}>
+                      <Ionicons name="navigate" size={12} color={COLORS.success} />
+                      <Text style={styles.distanceText}>
+                        A {userDistance < 1 
+                           ? `${(userDistance * 1000).toFixed(0)} m` 
+                           : `${userDistance.toFixed(1)} km`} de ti
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
-              <Text style={styles.placeName}>{place.name}</Text>
             </View>
           </Animatable.View>
 
-          {/* Stats Row */}
           <Animatable.View animation="fadeInUp" delay={300}>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
@@ -233,7 +266,6 @@ export default function PlaceDetailScreen() {
             </View>
           </Animatable.View>
 
-          {/* Description */}
           {place.description && (
             <Animatable.View animation="fadeInUp" delay={400}>
               <Card style={styles.section}>
@@ -246,7 +278,6 @@ export default function PlaceDetailScreen() {
             </Animatable.View>
           )}
 
-          {/* Address */}
           {place.address && (
             <Animatable.View animation="fadeInUp" delay={500}>
               <Card style={styles.section}>
@@ -255,7 +286,24 @@ export default function PlaceDetailScreen() {
                   <Text style={styles.sectionTitle}>Ubicación</Text>
                 </View>
                 <Text style={styles.address}>{place.address}</Text>
-                <TouchableOpacity style={styles.mapButton}>
+                <TouchableOpacity 
+                  style={styles.mapButton}
+                  onPress={() => {
+                    if (place.location?.coordinates && place.location.coordinates.length >= 2) {
+                      navigation.navigate('Map', {
+                        placeName: place.name,
+                        longitude: place.location.coordinates[0],
+                        latitude: place.location.coordinates[1]
+                      });
+                    } else {
+                      Alert.alert(
+                        'Ubicación no disponible',
+                        'Lo sentimos, este lugar no tiene coordenadas registradas para mostrar en el mapa.',
+                        [{ text: 'Entendido' }]
+                      );
+                    }
+                  }}
+                >
                   <Ionicons name="map-outline" size={16} color={COLORS.primary} />
                   <Text style={styles.mapButtonText}>Ver en el mapa</Text>
                 </TouchableOpacity>
@@ -263,7 +311,6 @@ export default function PlaceDetailScreen() {
             </Animatable.View>
           )}
 
-          {/* Tags */}
           {place.tags && place.tags.length > 0 && (
             <Animatable.View animation="fadeInUp" delay={600}>
               <Card style={styles.section}>
@@ -282,7 +329,6 @@ export default function PlaceDetailScreen() {
             </Animatable.View>
           )}
 
-          {/* Dishes */}
           {(place.category?.toLowerCase() === 'restaurante' || (dishes && dishes.length > 0)) && (
             <Animatable.View animation="fadeInUp" delay={650}>
               <Card style={styles.section}>
@@ -322,7 +368,6 @@ export default function PlaceDetailScreen() {
             </Animatable.View>
           )}
 
-          {/* Reviews */}
           <Animatable.View animation="fadeInUp" delay={700}>
             <Card style={styles.section}>
               <View style={styles.sectionHeader}>
@@ -382,7 +427,6 @@ export default function PlaceDetailScreen() {
         </View>
       </ScrollView>
 
-      {/* Modal de Reseña */}
       <AddReviewModal
         visible={reviewModalVisible}
         onClose={() => setReviewModalVisible(false)}
@@ -393,7 +437,6 @@ export default function PlaceDetailScreen() {
   );
 }
 
-// Helper functions
 function getCategoryIcon(category: string): any {
   const icons: Record<string, string> = {
     restaurante: 'restaurant',
@@ -530,27 +573,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     marginBottom: SPACING.lg,
   },
-  categoryBadge: {
+  headerInfo: {
+    flex: 1,
+    gap: SPACING.xs,
+  },
+  headerBadgeRow: {
     flexDirection: 'row',
+    gap: SPACING.sm,
     alignItems: 'center',
-    backgroundColor: COLORS.primary + '20',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-    alignSelf: 'flex-start',
-    marginBottom: SPACING.sm,
+    flexWrap: 'wrap',
   },
-  categoryText: {
-    fontSize: TYPOGRAPHY.xs,
-    color: COLORS.primary,
-    marginLeft: 4,
-    fontWeight: TYPOGRAPHY.semibold,
-    textTransform: 'capitalize',
-  },
-  placeName: {
+  name: {
     fontSize: TYPOGRAPHY['2xl'],
     fontWeight: TYPOGRAPHY.bold,
     color: COLORS.textPrimary,
+  },
+  categoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary + '15',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: RADIUS.md,
+    gap: 4,
+    alignSelf: 'flex-start',
+  },
+  distanceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.success + '15',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: RADIUS.md,
+    gap: 4,
+  },
+  distanceText: {
+    fontSize: TYPOGRAPHY.xs,
+    fontWeight: TYPOGRAPHY.bold,
+    color: COLORS.success,
+  },
+  categoryText: {
+    fontSize: TYPOGRAPHY.xs,
+    fontWeight: TYPOGRAPHY.bold,
+    color: COLORS.primary,
+    textTransform: 'capitalize',
   },
   statsRow: {
     flexDirection: 'row',
