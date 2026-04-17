@@ -1,15 +1,19 @@
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 import AppNavigator from '@navigation/AppNavigator';
+import Toast from '@components/ui/Toast';
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="light" />
-      <AppNavigator />
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <StatusBar style="light" />
+        <AppNavigator />
+        <Toast />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

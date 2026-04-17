@@ -25,6 +25,7 @@ import Input from '@components/ui/Input';
 import Card from '@components/ui/Card';
 import { useLanguage } from '@hooks/useLanguage';
 import authService from '@services/authService';
+import useToastStore from '../store/useToastStore';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS } from '../theme';
 
 const { width, height } = Dimensions.get('window');
@@ -96,9 +97,10 @@ export default function LoginScreen() {
 
     try {
       await authService.login({ email, password });
+      useToastStore.getState().showToast('¡Bienvenido de nuevo!', 'success');
       navigation.replace('Home');
     } catch (error: any) {
-      Alert.alert('Error de acceso', error.message || 'Verifica tus credenciales');
+      useToastStore.getState().showToast(error.message || 'Verifica tus credenciales', 'error');
     } finally {
       setLoading(false);
     }
@@ -123,9 +125,10 @@ export default function LoginScreen() {
     try {
       // Login directo sin validación de UI
       await authService.login({ email: demoEmail, password: demoPassword });
+      useToastStore.getState().showToast('Sesión de demo iniciada', 'success');
       navigation.replace('Home');
     } catch (error: any) {
-      Alert.alert('Error de acceso demo', error.message || 'Error al acceder con credenciales demo');
+      useToastStore.getState().showToast(error.message || 'Error al acceder con credenciales demo', 'error');
     } finally {
       setLoading(false);
     }

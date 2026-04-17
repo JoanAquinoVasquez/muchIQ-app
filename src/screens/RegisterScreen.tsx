@@ -24,6 +24,7 @@ import Input from '@components/ui/Input';
 import Card from '@components/ui/Card';
 import { useLanguage } from '@hooks/useLanguage';
 import authService from '@services/authService';
+import useToastStore from '../store/useToastStore';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS } from '../theme';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
@@ -109,6 +110,7 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = async () => {
+    const { showToast } = useToastStore.getState();
     setLoading(true);
     try {
       await authService.register({
@@ -119,9 +121,10 @@ export default function RegisterScreen() {
         reasonForVisit: formData.reasonForVisit,
         tastes: formData.tastes,
       });
+      showToast('¡Bienvenido a MuchIQ!', 'success');
       navigation.replace('Home');
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      showToast(error.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -299,7 +302,7 @@ export default function RegisterScreen() {
                               activeOpacity={0.7}
                             >
                               {isSelected ? (
-                                <BlurView intensity={60} tint="light" style={styles.chipBlur}>
+                                <>
                                   <Ionicons
                                     name={reason.icon as any}
                                     size={18}
@@ -307,7 +310,7 @@ export default function RegisterScreen() {
                                   />
                                   <Text style={styles.chipTextSelected}>{reason.label}</Text>
                                   <Ionicons name="checkmark-circle" size={18} color={COLORS.accent} />
-                                </BlurView>
+                                </>
                               ) : (
                                 <>
                                   <Ionicons
@@ -531,12 +534,6 @@ const styles = StyleSheet.create({
   chipSelected: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.accent,
-  },
-  chipBlur: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-    paddingHorizontal: SPACING.xs,
   },
   chipText: {
     fontSize: TYPOGRAPHY.sm,
