@@ -30,8 +30,8 @@ class RewardsService {
       // Enriquecer las recompensas con información adicional
       const enrichedRewards = response.data.map(reward => ({
         ...reward,
-        discount: this.calculateDiscount(reward.pointsCost),
-        validUntil: '31 Dic 2026',
+        discount: reward.discount || this.calculateDiscount(reward.pointsCost),
+        validUntil: reward.validUntil || '31 Dic 2026',
         imageUrl: reward.imageUrl || this.getDefaultImage(reward.name),
       }));
 
@@ -70,11 +70,12 @@ class RewardsService {
   }
 
   private calculateDiscount(pointsCost: number): string {
-    // Calcular descuento basado en los puntos
-    if (pointsCost >= 200) return '50%';
-    if (pointsCost >= 150) return '40%';
-    if (pointsCost >= 100) return '30%';
-    if (pointsCost >= 50) return '20%';
+    // Calcular descuento basado en los puntos (Ajustado para que haya más variedad con puntos bajos)
+    if (pointsCost > 0) {
+      // Como un mock dinámico: Puntos más bajos empiezan en 15% y van escalando
+      const calculated = Math.min(50, 10 + Math.floor(pointsCost / 10) * 5); 
+      return `${calculated}%`;
+    }
     return '10%';
   }
 

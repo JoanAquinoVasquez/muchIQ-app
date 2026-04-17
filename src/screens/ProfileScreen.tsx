@@ -18,6 +18,7 @@ import * as Animatable from 'react-native-animatable';
 
 import profileService, { UserProfile } from '@services/profileService';
 import authService from '@services/authService';
+import BottomNavigation from '@components/BottomNavigation';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
 
 export default function ProfileScreen() {
@@ -246,6 +247,8 @@ export default function ProfileScreen() {
 
         <View style={{ height: SPACING.xl }} />
       </ScrollView>
+
+      <BottomNavigation />
     </SafeAreaView>
   );
 }

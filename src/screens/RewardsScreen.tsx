@@ -22,6 +22,7 @@ import * as Animatable from 'react-native-animatable';
 
 import authService from '@services/authService';
 import rewardsService, { Reward } from '@services/rewardsService';
+import BottomNavigation from '@components/BottomNavigation';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -435,6 +436,8 @@ export default function RewardsScreen() {
           </Animatable.View>
         </BlurView>
       </Modal>
+
+      <BottomNavigation />
     </SafeAreaView>
   );
 }
