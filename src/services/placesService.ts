@@ -146,7 +146,7 @@ class PlacesService {
   ): Promise<Place[]> {
     try {
       const response = await api.get(
-        `api/places?lat=${lat}&lng=${lng}&radius=${radius}`,
+        `/api/places?lat=${lat}&lng=${lng}&radius=${radius}`,
       );
       return response.data;
     } catch (error) {
@@ -158,8 +158,8 @@ class PlacesService {
   async getPlacesByCategory(category: string, lat?: number, lng?: number): Promise<Place[]> {
     try {
       const url = lat && lng 
-        ? `api/places?category=${category}&lat=${lat}&lng=${lng}` 
-        : `api/places?category=${category}`;
+        ? `/api/places?category=${category}&lat=${lat}&lng=${lng}` 
+        : `/api/places?category=${category}`;
       const response = await api.get(url);
       return response.data;
     } catch (error) {

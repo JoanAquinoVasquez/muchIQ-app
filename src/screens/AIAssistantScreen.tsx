@@ -52,6 +52,7 @@ export default function AIAssistantScreen() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
 
   const suggestedQueries = [
     '¿Qué lugares turísticos puedo visitar hoy?',
@@ -121,30 +122,19 @@ export default function AIAssistantScreen() {
 
   const handleClearChat = () => {
     setShowMenu(false);
-    Alert.alert(
-      '¿Reiniciar aventura?',
-      'Se borrarán todos los mensajes. ¿Quieres empezar de cero con tu guía MuchIQ?',
-      [
-        { text: 'Todavía no', style: 'cancel' },
-        { 
-          text: 'Sí, reiniciar', 
-          style: 'destructive',
-          onPress: () => {
-            // Cerramos con una pequeña demora para que la alerta desaparezca suavemente
-            setTimeout(() => {
-              setMessages([
-                {
-                  id: '1',
-                  text: '¡Hola! 👋 Soy tu guía MuchIQ. He reiniciado nuestra bitácora de viaje.\n\n¿A dónde te gustaría que planeemos ir ahora?',
-                  isUser: false,
-                  timestamp: new Date(),
-                },
-              ]);
-            }, 300);
-          }
-        },
-      ]
-    );
+    setShowConfirmClear(true);
+  };
+
+  const confirmClearChat = () => {
+    setShowConfirmClear(false);
+    setMessages([
+      {
+        id: '1',
+        text: '¡Hola! 👋 Soy tu guía MuchIQ. He reiniciado nuestra bitácora de viaje.\n\n¿A dónde te gustaría que planeemos ir ahora?',
+        isUser: false,
+        timestamp: new Date(),
+      },
+    ]);
   };
 
   // Función para parsear texto con formato **negrita**
@@ -314,6 +304,53 @@ export default function AIAssistantScreen() {
             </TouchableOpacity>
           </Animatable.View>
         </TouchableOpacity>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        visible={showConfirmClear}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowConfirmClear(false)}
+      >
+        <View style={styles.confirmOverlay}>
+          <Animatable.View 
+            animation="zoomIn" 
+            duration={300}
+            style={styles.confirmCard}
+          >
+            <View style={styles.confirmHeader}>
+              <View style={styles.confirmIconContainer}>
+                <Ionicons name="refresh-circle" size={40} color={COLORS.error} />
+              </View>
+              <Text style={styles.confirmTitle}>¿Reiniciar aventura?</Text>
+              <Text style={styles.confirmSubtitle}>
+                Se borrarán todos los mensajes del chat. Esta acción no se puede deshacer.
+              </Text>
+            </View>
+
+            <View style={styles.confirmActions}>
+              <TouchableOpacity 
+                style={[styles.confirmButton, styles.cancelButton]}
+                onPress={() => setShowConfirmClear(false)}
+              >
+                <Text style={styles.cancelButtonText}>Todavía no</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.confirmButton, styles.deleteButton]}
+                onPress={confirmClearChat}
+              >
+                <LinearGradient
+                  colors={[COLORS.error, '#d32f2f']}
+                  style={styles.deleteButtonGradient}
+                >
+                  <Text style={styles.deleteButtonText}>Sí, reiniciar</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </Animatable.View>
+        </View>
       </Modal>
 
       {/* Messages */}
@@ -663,5 +700,75 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.base,
     color: COLORS.error,
     fontWeight: TYPOGRAPHY.semibold,
+  },
+  confirmOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+  },
+  confirmCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.xl,
+    width: '100%',
+    maxWidth: 340,
+    padding: SPACING.xl,
+    ...SHADOWS.lg,
+  },
+  confirmHeader: {
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  confirmIconContainer: {
+    marginBottom: SPACING.md,
+  },
+  confirmTitle: {
+    fontSize: TYPOGRAPHY.xl,
+    fontWeight: TYPOGRAPHY.bold,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.sm,
+    textAlign: 'center',
+  },
+  confirmSubtitle: {
+    fontSize: TYPOGRAPHY.base,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+  },
+  confirmButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: RADIUS.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  cancelButtonText: {
+    color: COLORS.textSecondary,
+    fontWeight: TYPOGRAPHY.semibold,
+    fontSize: TYPOGRAPHY.sm,
+  },
+  deleteButton: {
+    overflow: 'hidden',
+  },
+  deleteButtonGradient: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: COLORS.textWhite,
+    fontWeight: TYPOGRAPHY.bold,
+    fontSize: TYPOGRAPHY.sm,
   },
 });

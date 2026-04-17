@@ -56,18 +56,37 @@ export default function HomeScreen() {
 
   const getUserLocationAndFeed = async () => {
     try {
+      setLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === 'granted') {
         const location = await Location.getCurrentPositionAsync({});
         const coords = { lat: location.coords.latitude, lng: location.coords.longitude };
         setUserLocation(coords);
-        loadFeedData(coords.lat, coords.lng);
+        await loadFeedData(coords.lat, coords.lng);
       } else {
-        loadFeedData();
+        await loadFeedData();
       }
     } catch (error) {
       console.error('Error getting location for home:', error);
-      loadFeedData();
+      await loadFeedData();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadFeedData = async (lat?: number, lng?: number) => {
+    setLoading(true);
+    try {
+      const [places, dishes] = await Promise.all([
+        placesService.getPopularPlaces(lat, lng),
+        placesService.getPopularDishes(),
+      ]);
+      setFeedPlaces(places.slice(0, 10));
+      setFeedDishes(dishes.slice(0, 5));
+    } catch (error) {
+      console.error('Error loading feed:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,35 +124,24 @@ export default function HomeScreen() {
     ).start();
   };
 
-  const loadUserData = async () => {
-    const currentUser = await authService.getCurrentUser();
-    setUser(currentUser);
-  };
-
-  const loadFeedData = async (lat?: number, lng?: number) => {
-    setLoading(true);
-    try {
-      const [places, dishes] = await Promise.all([
-        placesService.getPopularPlaces(lat, lng),
-        placesService.getPopularDishes(),
-      ]);
-      setFeedPlaces(places.slice(0, 10));
-      setFeedDishes(dishes.slice(0, 5));
-    } catch (error) {
-      console.error('Error loading feed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onRefresh = async () => {
     setRefreshing(true);
-    if (userLocation) {
-      await loadFeedData(userLocation.lat, userLocation.lng);
-    } else {
-      await getUserLocationAndFeed();
-    }
+    await Promise.all([
+      loadUserData(),
+      getUserLocationAndFeed()
+    ]);
     setRefreshing(false);
+  };
+
+  const loadUserData = async () => {
+    try {
+      const userData = await authService.getCurrentUser();
+      if (userData) {
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
   };
 
   const handleLogout = async () => {

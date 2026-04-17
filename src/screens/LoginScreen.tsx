@@ -290,7 +290,7 @@ export default function LoginScreen() {
               </TouchableOpacity>
               
               <Text style={styles.demoHint}>
-                Acceso rápido para evaluadores
+                Acceso rápido
               </Text>
             </Animatable.View>
 
