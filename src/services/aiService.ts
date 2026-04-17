@@ -4,6 +4,7 @@ export interface AIRecommendationRequest {
   query: string;
   lat?: number;
   lng?: number;
+  history?: { text: string; isUser: boolean }[];
 }
 
 export interface AIRecommendationResponse {
@@ -11,19 +12,21 @@ export interface AIRecommendationResponse {
 }
 
 class AIService {
-  // Coordenadas por defecto (Chiclayo, Lambayeque)
-  private readonly DEFAULT_LAT = -6.7726085649176735;
-  private readonly DEFAULT_LNG = -79.84632241544423;
-
-  async getRecommendation(query: string, lat?: number, lng?: number): Promise<AIRecommendationResponse> {
+  async getRecommendation(
+    query: string, 
+    lat?: number, 
+    lng?: number, 
+    history?: { text: string; isUser: boolean }[]
+  ): Promise<AIRecommendationResponse> {
     try {
-      const requestData = {
+      const requestData: AIRecommendationRequest = {
         query: query,
-        lat: lat || this.DEFAULT_LAT,
-        lng: lng || this.DEFAULT_LNG,
+        lat: lat,
+        lng: lng,
+        history: history,
       };
 
-      console.log('📤 Enviando request a IA:', requestData);
+      console.log('📤 Enviando request a IA (lat/lng opcionales):', requestData);
 
       const response = await api.post<AIRecommendationResponse>('/api/ai/recommend', requestData);
       

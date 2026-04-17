@@ -11,6 +11,8 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  Modal,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -49,6 +51,7 @@ export default function AIAssistantScreen() {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const suggestedQueries = [
     '¿Qué lugares turísticos puedo visitar hoy?',
@@ -83,7 +86,13 @@ export default function AIAssistantScreen() {
     setIsLoading(true);
 
     try {
-      const response = await aiService.getRecommendation(messageText);
+      // Obtener historial reciente (últimos 6 mensajes por ejemplo) para dar contexto
+      const history = messages.slice(-6).map(m => ({
+        text: m.text,
+        isUser: m.isUser
+      }));
+
+      const response = await aiService.getRecommendation(messageText, undefined, undefined, history);
       
       console.log('✅ Respuesta recibida:', response);
       
@@ -108,6 +117,34 @@ export default function AIAssistantScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleClearChat = () => {
+    setShowMenu(false);
+    Alert.alert(
+      '¿Reiniciar aventura?',
+      'Se borrarán todos los mensajes. ¿Quieres empezar de cero con tu guía MuchIQ?',
+      [
+        { text: 'Todavía no', style: 'cancel' },
+        { 
+          text: 'Sí, reiniciar', 
+          style: 'destructive',
+          onPress: () => {
+            // Cerramos con una pequeña demora para que la alerta desaparezca suavemente
+            setTimeout(() => {
+              setMessages([
+                {
+                  id: '1',
+                  text: '¡Hola! 👋 Soy tu guía MuchIQ. He reiniciado nuestra bitácora de viaje.\n\n¿A dónde te gustaría que planeemos ir ahora?',
+                  isUser: false,
+                  timestamp: new Date(),
+                },
+              ]);
+            }, 300);
+          }
+        },
+      ]
+    );
   };
 
   // Función para parsear texto con formato **negrita**
@@ -235,10 +272,49 @@ export default function AIAssistantScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity 
+          style={styles.menuButton}
+          onPress={() => setShowMenu(true)}
+        >
           <Ionicons name="ellipsis-vertical" size={24} color={COLORS.textWhite} />
         </TouchableOpacity>
       </LinearGradient>
+
+      {/* Menu Modal */}
+      <Modal
+        visible={showMenu}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowMenu(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay} 
+          activeOpacity={1} 
+          onPress={() => setShowMenu(false)}
+        >
+          <Animatable.View 
+            animation="fadeInUp" 
+            duration={200}
+            style={styles.menuContent}
+          >
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={handleClearChat}
+            >
+              <Ionicons name="trash-outline" size={20} color={COLORS.error} />
+              <Text style={styles.menuItemTextDestructive}>Limpiar conversación</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.menuItem, styles.menuItemLast]}
+              onPress={() => setShowMenu(false)}
+            >
+              <Ionicons name="close-outline" size={20} color={COLORS.textSecondary} />
+              <Text style={styles.menuItemText}>Cerrar</Text>
+            </TouchableOpacity>
+          </Animatable.View>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Messages */}
       <KeyboardAvoidingView
@@ -554,5 +630,38 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.full,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  menuContent: {
+    backgroundColor: COLORS.surface,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: Platform.OS === 'ios' ? SPACING.xl : SPACING.lg,
+    paddingTop: SPACING.md,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    gap: SPACING.md,
+  },
+  menuItemLast: {
+    borderBottomWidth: 0,
+  },
+  menuItemText: {
+    fontSize: TYPOGRAPHY.base,
+    color: COLORS.textPrimary,
+  },
+  menuItemTextDestructive: {
+    fontSize: TYPOGRAPHY.base,
+    color: COLORS.error,
+    fontWeight: TYPOGRAPHY.semibold,
   },
 });

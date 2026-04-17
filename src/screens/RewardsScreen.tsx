@@ -123,7 +123,7 @@ export default function RewardsScreen() {
           >
             {reward.discount && (
               <View style={styles.discountBadge}>
-                <Text style={styles.discountText}>{reward.discount} OFF</Text>
+                <Text style={styles.discountText}>{reward.discount}</Text>
               </View>
             )}
 
