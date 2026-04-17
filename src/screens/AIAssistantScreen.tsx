@@ -21,6 +21,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 
 import aiService from '@services/aiService';
+import itineraryService, { Itinerary } from '@services/itineraryService';
+import ItineraryTimeline from '@components/itinerary/ItineraryTimeline';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -30,6 +32,7 @@ interface Message {
   text: string;
   isUser: boolean;
   timestamp: Date;
+  itineraryData?: Itinerary; 
 }
 
 interface TextPart {
@@ -53,6 +56,11 @@ export default function AIAssistantScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
+  
+  // Estados para itinerario
+  const [activeItinerary, setActiveItinerary] = useState<Itinerary | null>(null);
+  const [isItineraryVisible, setIsItineraryVisible] = useState(false);
+  const [isSavingItinerary, setIsSavingItinerary] = useState(false);
 
   const suggestedQueries = [
     '¿Qué lugares turísticos puedo visitar hoy?',
@@ -97,11 +105,29 @@ export default function AIAssistantScreen() {
       
       console.log('✅ Respuesta recibida:', response);
       
+      // Intentar extraer JSON de itinerario
+      let cleanedText = response.aiResponse;
+      let itineraryData: Itinerary | undefined = undefined;
+
+      const itineraryRegex = /\[ITINERARY_JSON\]([\s\S]*?)\[\/ITINERARY_JSON\]/;
+      const match = cleanedText.match(itineraryRegex);
+
+      if (match && match[1]) {
+        try {
+          itineraryData = JSON.parse(match[1]);
+          // Limpiar el texto para que no muestre el JSON crudo en el chat
+          cleanedText = cleanedText.replace(itineraryRegex, '').trim();
+        } catch (e) {
+          console.error("Error al parsear JSON de itinerario:", e);
+        }
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response.aiResponse,
+        text: cleanedText,
         isUser: false,
         timestamp: new Date(),
+        itineraryData: itineraryData
       };
 
       setMessages(prev => [...prev, aiMessage]);
@@ -135,6 +161,24 @@ export default function AIAssistantScreen() {
         timestamp: new Date(),
       },
     ]);
+  };
+
+  const handleSaveItinerary = async () => {
+    if (!activeItinerary) return;
+    setIsSavingItinerary(true);
+    try {
+      await itineraryService.saveItinerary(activeItinerary);
+      Alert.alert('¡Excelente!', 'Tu plan de viaje ha sido guardado en tu perfil.');
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setIsSavingItinerary(false);
+    }
+  };
+
+  const openItinerary = (data: Itinerary) => {
+    setActiveItinerary(data);
+    setIsItineraryVisible(true);
   };
 
   // Función para parsear texto con formato **negrita**
@@ -212,6 +256,22 @@ export default function AIAssistantScreen() {
           ]}
         >
           <FormattedText text={message.text} isUserMessage={message.isUser} />
+          
+          {message.itineraryData && (
+            <TouchableOpacity 
+              style={styles.itineraryBadge}
+              onPress={() => openItinerary(message.itineraryData!)}
+            >
+              <LinearGradient
+                colors={[COLORS.accent, COLORS.accentDark]}
+                style={styles.itineraryBadgeGradient}
+              >
+                <Ionicons name="sparkles" size={16} color={COLORS.textWhite} />
+                <Text style={styles.itineraryBadgeText}>Ver Plan Visual</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
           <Text
             style={[
               styles.timestamp,
@@ -451,6 +511,17 @@ export default function AIAssistantScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Modal de Itinerario */}
+      {activeItinerary && (
+        <ItineraryTimeline
+          isVisible={isItineraryVisible}
+          onClose={() => setIsItineraryVisible(false)}
+          itinerary={activeItinerary}
+          onSave={handleSaveItinerary}
+          isSaving={isSavingItinerary}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -579,6 +650,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
+  },
+  itineraryBadge: {
+    marginTop: SPACING.sm,
+    borderRadius: RADIUS.md,
+    overflow: 'hidden',
+    ...SHADOWS.sm,
+  },
+  itineraryBadgeGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+  },
+  itineraryBadgeText: {
+    color: COLORS.textWhite,
+    fontSize: TYPOGRAPHY.sm,
+    fontWeight: TYPOGRAPHY.bold,
   },
   messageText: {
     fontSize: TYPOGRAPHY.base,
