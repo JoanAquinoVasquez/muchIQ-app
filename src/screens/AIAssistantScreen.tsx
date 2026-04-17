@@ -23,6 +23,7 @@ import * as Animatable from 'react-native-animatable';
 import aiService from '@services/aiService';
 import itineraryService, { Itinerary } from '@services/itineraryService';
 import ItineraryTimeline from '@components/itinerary/ItineraryTimeline';
+import CustomModal from '@components/ui/CustomModal';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -55,12 +56,29 @@ export default function AIAssistantScreen() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [showConfirmClear, setShowConfirmClear] = useState(false);
   
   // Estados para itinerario
   const [activeItinerary, setActiveItinerary] = useState<Itinerary | null>(null);
   const [isItineraryVisible, setIsItineraryVisible] = useState(false);
   const [isSavingItinerary, setIsSavingItinerary] = useState(false);
+
+  // Estado para alertas personalizadas
+  const [customAlert, setCustomAlert] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'delete' | 'confirm';
+    onConfirm?: () => void;
+  }>({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
+
+  const showCustomAlert = (title: string, message: string, type: 'success' | 'error' | 'info' | 'delete' | 'confirm' = 'info', onConfirm?: () => void) => {
+    setCustomAlert({ visible: true, title, message, type, onConfirm });
+  };
 
   const suggestedQueries = [
     '¿Qué lugares turísticos puedo visitar hoy?',
@@ -148,29 +166,37 @@ export default function AIAssistantScreen() {
 
   const handleClearChat = () => {
     setShowMenu(false);
-    setShowConfirmClear(true);
-  };
-
-  const confirmClearChat = () => {
-    setShowConfirmClear(false);
-    setMessages([
-      {
-        id: '1',
-        text: '¡Hola! 👋 Soy tu guía MuchIQ. He reiniciado nuestra bitácora de viaje.\n\n¿A dónde te gustaría que planeemos ir ahora?',
-        isUser: false,
-        timestamp: new Date(),
-      },
-    ]);
+    showCustomAlert(
+      '¿Reiniciar aventura?', 
+      'Se borrarán todos los mensajes del chat. Esta acción no se puede deshacer.', 
+      'delete',
+      () => {
+        setMessages([
+          {
+            id: '1',
+            text: '¡Hola! 👋 Soy tu guía MuchIQ. He reiniciado nuestra bitácora de viaje.\n\n¿A dónde te gustaría que planeemos ir ahora?',
+            isUser: false,
+            timestamp: new Date(),
+          },
+        ]);
+        scrollToBottom();
+      }
+    );
   };
 
   const handleSaveItinerary = async () => {
     if (!activeItinerary) return;
     setIsSavingItinerary(true);
     try {
+      console.log("💾 Guardando itinerario...", activeItinerary.title);
       await itineraryService.saveItinerary(activeItinerary);
-      Alert.alert('¡Excelente!', 'Tu plan de viaje ha sido guardado en tu perfil.');
+      
+      const successMsg = '¡Excelente! Tu plan de viaje ha sido guardado con éxito.';
+      showCustomAlert('¡Excelente!', successMsg, 'success');
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      console.error("❌ Error al guardar itinerario:", error);
+      const errorMsg = error.message || 'No se pudo guardar el itinerario';
+      showCustomAlert('Error', errorMsg, 'error');
     } finally {
       setIsSavingItinerary(false);
     }
@@ -366,52 +392,15 @@ export default function AIAssistantScreen() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Confirmation Modal */}
-      <Modal
-        visible={showConfirmClear}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowConfirmClear(false)}
-      >
-        <View style={styles.confirmOverlay}>
-          <Animatable.View 
-            animation="zoomIn" 
-            duration={300}
-            style={styles.confirmCard}
-          >
-            <View style={styles.confirmHeader}>
-              <View style={styles.confirmIconContainer}>
-                <Ionicons name="refresh-circle" size={40} color={COLORS.error} />
-              </View>
-              <Text style={styles.confirmTitle}>¿Reiniciar aventura?</Text>
-              <Text style={styles.confirmSubtitle}>
-                Se borrarán todos los mensajes del chat. Esta acción no se puede deshacer.
-              </Text>
-            </View>
-
-            <View style={styles.confirmActions}>
-              <TouchableOpacity 
-                style={[styles.confirmButton, styles.cancelButton]}
-                onPress={() => setShowConfirmClear(false)}
-              >
-                <Text style={styles.cancelButtonText}>Todavía no</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={[styles.confirmButton, styles.deleteButton]}
-                onPress={confirmClearChat}
-              >
-                <LinearGradient
-                  colors={[COLORS.error, '#d32f2f']}
-                  style={styles.deleteButtonGradient}
-                >
-                  <Text style={styles.deleteButtonText}>Sí, reiniciar</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </Animatable.View>
-        </View>
-      </Modal>
+      <CustomModal
+        visible={customAlert.visible}
+        onClose={() => setCustomAlert({ ...customAlert, visible: false })}
+        onConfirm={customAlert.onConfirm}
+        title={customAlert.title}
+        message={customAlert.message}
+        type={customAlert.type}
+        confirmText={customAlert.type === 'delete' ? 'Sí, borrar' : 'Entendido'}
+      />
 
       {/* Messages */}
       <KeyboardAvoidingView

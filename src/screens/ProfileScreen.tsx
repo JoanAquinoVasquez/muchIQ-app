@@ -18,18 +18,43 @@ import * as Animatable from 'react-native-animatable';
 
 import profileService, { UserProfile } from '@services/profileService';
 import authService from '@services/authService';
+import itineraryService, { Itinerary } from '@services/itineraryService';
+import ItineraryTimeline from '@components/itinerary/ItineraryTimeline';
 import BottomNavigation from '@components/BottomNavigation';
+import CustomModal from '@components/ui/CustomModal';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../theme';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [itineraries, setItineraries] = useState<Itinerary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingItineraries, setLoadingItineraries] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedItinerary, setSelectedItinerary] = useState<Itinerary | null>(null);
+
+  // Estado para alertas personalizadas
+  const [customAlert, setCustomAlert] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    type: 'success' | 'error' | 'info' | 'delete' | 'confirm';
+    onConfirm?: () => void;
+  }>({
+    visible: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
+
+  const showCustomAlert = (title: string, message: string, type: 'success' | 'error' | 'info' | 'delete' | 'confirm' = 'info', onConfirm?: () => void) => {
+    setCustomAlert({ visible: true, title, message, type, onConfirm });
+  };
 
   useFocusEffect(
     useCallback(() => {
       loadProfile();
+      loadItineraries();
       return () => {};
     }, [])
   );
@@ -41,33 +66,57 @@ export default function ProfileScreen() {
       setProfile(data);
     } catch (error) {
       console.error('Error loading profile:', error);
-      Alert.alert('Error', 'No se pudo cargar el perfil');
+      showCustomAlert('Error', 'No se pudo cargar el perfil', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const loadItineraries = async () => {
+    try {
+      setLoadingItineraries(true);
+      const data = await itineraryService.getMyItineraries();
+      setItineraries(data);
+    } catch (error) {
+      console.error('Error loading itineraries:', error);
+    } finally {
+      setLoadingItineraries(false);
+    }
+  };
+
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadProfile();
+    await Promise.all([loadProfile(), loadItineraries()]);
     setRefreshing(false);
   };
 
+  const handleDeleteItinerary = async (id: string) => {
+    showCustomAlert(
+      'Eliminar Itinerario',
+      '¿Estás seguro de que quieres eliminar este plan de viaje? Esta acción no se puede deshacer.',
+      'delete',
+      async () => {
+        try {
+          await itineraryService.deleteItinerary(id);
+          setItineraries(prev => prev.filter(it => it._id !== id));
+          // No necesitamos el success alert aquí si queremos ser minimalistas, 
+          // pero el modal se cerrará solo.
+        } catch (error) {
+          showCustomAlert('Error', 'No se pudo eliminar el itinerario', 'error');
+        }
+      }
+    );
+  };
+
   const handleLogout = () => {
-    Alert.alert(
+    showCustomAlert(
       'Cerrar Sesión',
-      '¿Estás seguro que deseas salir?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Salir',
-          style: 'destructive',
-          onPress: async () => {
-            await authService.logout();
-            navigation.reset({ index: 0, routes: [{ name: 'Login' as never }] });
-          },
-        },
-      ]
+      '¿Estás seguro que deseas salir de MuchIQ?',
+      'confirm',
+      async () => {
+        await authService.logout();
+        navigation.reset({ index: 0, routes: [{ name: 'Login' as never }] });
+      }
     );
   };
 
@@ -234,6 +283,48 @@ export default function ProfileScreen() {
           </Animatable.View>
         )}
 
+        {/* Planes de Viaje Guardados */}
+        {(itineraries.length > 0 || loadingItineraries) && (
+          <Animatable.View animation="fadeInUp" delay={400} style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="map-outline" size={24} color={COLORS.primary} />
+              <Text style={styles.sectionTitle}>Mis Planes de Viaje</Text>
+              <View style={[styles.badge, { backgroundColor: COLORS.accent }]}>
+                <Text style={styles.badgeText}>{itineraries.length}</Text>
+              </View>
+            </View>
+
+            {loadingItineraries && (
+              <ActivityIndicator size="small" color={COLORS.primary} />
+            )}
+
+            {itineraries.map((itinerary) => (
+              <View key={itinerary._id} style={styles.itineraryCard}>
+                <TouchableOpacity 
+                   style={styles.itineraryMain}
+                   onPress={() => setSelectedItinerary(itinerary)}
+                >
+                  <View style={styles.itineraryIcon}>
+                    <Ionicons name="journal" size={24} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.itineraryInfo}>
+                    <Text style={styles.itineraryTitle} numberOfLines={1}>{itinerary.title}</Text>
+                    <Text style={styles.itineraryDate}>
+                      {itinerary.createdAt ? new Date(itinerary.createdAt).toLocaleDateString() : 'Reciente'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.deleteItineraryBtn}
+                  onPress={() => itinerary._id && handleDeleteItinerary(itinerary._id)}
+                >
+                  <Ionicons name="trash-outline" size={20} color={COLORS.error} />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </Animatable.View>
+        )}
+
         {/* Botón de editar perfil */}
         <TouchableOpacity
           style={styles.editButton}
@@ -250,6 +341,24 @@ export default function ProfileScreen() {
 
         <View style={{ height: SPACING.xl }} />
       </ScrollView>
+
+      {selectedItinerary && (
+        <ItineraryTimeline 
+          isVisible={!!selectedItinerary}
+          onClose={() => setSelectedItinerary(null)}
+          itinerary={selectedItinerary}
+        />
+      )}
+
+      <CustomModal
+        visible={customAlert.visible}
+        onClose={() => setCustomAlert({ ...customAlert, visible: false })}
+        onConfirm={customAlert.onConfirm}
+        title={customAlert.title}
+        message={customAlert.message}
+        type={customAlert.type}
+        confirmText={customAlert.type === 'delete' ? 'Eliminar' : (customAlert.type === 'confirm' ? 'Salir' : 'Entendido')}
+      />
 
       <BottomNavigation />
     </SafeAreaView>
@@ -501,5 +610,44 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.base,
     fontWeight: TYPOGRAPHY.bold,
     color: COLORS.textWhite,
+  },
+  itineraryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    marginBottom: SPACING.sm,
+    ...SHADOWS.sm,
+  },
+  itineraryMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  itineraryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: RADIUS.md,
+    backgroundColor: COLORS.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
+  itineraryInfo: {
+    flex: 1,
+  },
+  itineraryTitle: {
+    fontSize: TYPOGRAPHY.base,
+    fontWeight: TYPOGRAPHY.semibold,
+    color: COLORS.textPrimary,
+  },
+  itineraryDate: {
+    fontSize: TYPOGRAPHY.xs,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  deleteItineraryBtn: {
+    padding: SPACING.sm,
   },
 });

@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
+import { useNavigation } from '@react-navigation/native';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../../theme';
 import { Itinerary, ItineraryDay, ItineraryActivity as BaseActivity } from '../../services/itineraryService';
 import pdfService from '../../services/pdfService';
@@ -36,6 +37,7 @@ export default function ItineraryTimeline({
   onSave,
   isSaving
 }: ItineraryTimelineProps) {
+  const navigation = useNavigation<any>();
   const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
   
   const getCategoryIcon = (category: string) => {
@@ -56,11 +58,18 @@ export default function ItineraryTimeline({
     return COLORS.primary;
   };
 
-  const openGoogleMaps = (activity: ItineraryActivity) => {
+  const openInternalMap = (activity: ItineraryActivity) => {
     if (!activity.coordinates) return;
-    const { lat, lng } = activity.coordinates;
-    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    Linking.openURL(url);
+    
+    // Cerramos el modal para que no se quede encima del mapa
+    onClose();
+    
+    // Navegamos al MapScreen interno
+    navigation.navigate('Map', {
+      placeName: activity.placeName,
+      latitude: activity.coordinates.lat,
+      longitude: activity.coordinates.lng,
+    });
   };
 
   const handleExportPDF = async () => {
@@ -152,7 +161,7 @@ export default function ItineraryTimeline({
                         <View style={styles.titleRow}>
                           <Text style={styles.activityName}>{activity.placeName}</Text>
                           {(activity as any).coordinates && (
-                            <TouchableOpacity onPress={() => openGoogleMaps(activity as any)}>
+                            <TouchableOpacity onPress={() => openInternalMap(activity as any)}>
                               <Ionicons name="map-outline" size={16} color={COLORS.primary} />
                             </TouchableOpacity>
                           )}
