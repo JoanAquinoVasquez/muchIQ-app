@@ -63,20 +63,17 @@ class PDFService {
     `;
 
     try {
-      const { uri } = await Print.printToFileAsync({ html });
-      console.log('PDF generado en:', uri);
-
-      if (Platform.OS !== 'web') {
-        await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      if (Platform.OS === 'web') {
+        // En web, es mejor abrir el diálogo de impresión directamente
+        await Print.printAsync({ html });
       } else {
-        // En web se puede abrir o descargar
-        const pdfWindow = window.open(uri);
-        if (!pdfWindow) {
-          alert('Por favor permite los popups para descargar el PDF');
-        }
+        // En móvil, generamos el archivo y lo compartimos
+        const { uri } = await Print.printToFileAsync({ html });
+        console.log('PDF generado en:', uri);
+        await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
       }
     } catch (error) {
-      console.error('Error generando PDF:', error);
+      console.error('Error detallado generando PDF:', error);
       throw error;
     }
   }
