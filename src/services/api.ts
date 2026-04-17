@@ -6,7 +6,7 @@ const API_BASE_URL = 'https://api-hackaton-lambayeque.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000, // Aumentado a 15 segundos por si el servidor es lento
+  timeout: 30000, // Aumentado a 30 segundos para dar tiempo a la IA en Render
   headers: {
     'Content-Type': 'application/json',
   },
