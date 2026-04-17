@@ -99,13 +99,27 @@ export default function RegisterScreen() {
     return valid;
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (validateStep1()) {
-      Animated.timing(slideAnim, {
-        toValue: -1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => setStep(2));
+      const { showToast } = useToastStore.getState();
+      setLoading(true);
+      try {
+        const response = await authService.checkEmail(formData.email);
+        if (response.exists) {
+          showToast('El correo electrónico ya está registrado', 'error');
+          navigation.navigate('Login');
+        } else {
+          Animated.timing(slideAnim, {
+            toValue: -1,
+            duration: 300,
+            useNativeDriver: true,
+          }).start(() => setStep(2));
+        }
+      } catch (error: any) {
+        showToast(error.message, 'error');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -254,9 +268,10 @@ export default function RegisterScreen() {
                     duration={2000}
                   >
                     <Button
-                      title="Continuar"
+                      title={loading ? "Verificando..." : "Continuar"}
                       onPress={handleNextStep}
-                      icon={<Ionicons name="arrow-forward" size={20} color={COLORS.textWhite} />}
+                      loading={loading}
+                      icon={!loading ? <Ionicons name="arrow-forward" size={20} color={COLORS.textWhite} /> : undefined}
                     />
                   </Animatable.View>
                 </Card>

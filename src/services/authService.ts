@@ -140,6 +140,18 @@ class AuthService {
     return null;
   }
 
+  async checkEmail(email: string): Promise<{ exists: boolean; message: string }> {
+    try {
+      const response = await api.post("/api/users/check-email", { email });
+      return response.data;
+    } catch (error: any) {
+      console.error("Check email error:", error.response?.data || error.message);
+      throw new Error(
+        error.response?.data?.message || "Error al verificar el correo",
+      );
+    }
+  }
+
   async isAuthenticated(): Promise<boolean> {
     const token = await AsyncStorage.getItem("authToken");
     return !!token;
