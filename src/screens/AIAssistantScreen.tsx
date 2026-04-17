@@ -193,6 +193,9 @@ export default function AIAssistantScreen() {
       
       const successMsg = '¡Excelente! Tu plan de viaje ha sido guardado con éxito.';
       showCustomAlert('¡Excelente!', successMsg, 'success');
+      
+      // Cerramos el visor del itinerario para que se vea el mensaje de éxito
+      setIsItineraryVisible(false);
     } catch (error: any) {
       console.error("❌ Error al guardar itinerario:", error);
       const errorMsg = error.message || 'No se pudo guardar el itinerario';
