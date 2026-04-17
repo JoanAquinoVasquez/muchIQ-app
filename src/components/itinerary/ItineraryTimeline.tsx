@@ -6,12 +6,20 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  Image,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '../../theme';
-import { Itinerary, ItineraryDay } from '../../services/itineraryService';
+import { Itinerary, ItineraryDay, ItineraryActivity as BaseActivity } from '../../services/itineraryService';
+import pdfService from '../../services/pdfService';
+
+export interface ItineraryActivity extends BaseActivity {
+  imageUrl?: string;
+  coordinates?: { lat: number; lng: number };
+}
 
 interface ItineraryTimelineProps {
   isVisible: boolean;
@@ -28,6 +36,7 @@ export default function ItineraryTimeline({
   onSave,
   isSaving
 }: ItineraryTimelineProps) {
+  const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
   
   const getCategoryIcon = (category: string) => {
     const cat = category.toLowerCase();
@@ -45,6 +54,24 @@ export default function ItineraryTimeline({
     if (cat.includes('museo')) return '#4ECDC4';
     if (cat.includes('playa')) return '#45B7D1';
     return COLORS.primary;
+  };
+
+  const openGoogleMaps = (activity: ItineraryActivity) => {
+    if (!activity.coordinates) return;
+    const { lat, lng } = activity.coordinates;
+    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    Linking.openURL(url);
+  };
+
+  const handleExportPDF = async () => {
+    setIsGeneratingPDF(true);
+    try {
+      await pdfService.generateItineraryPDF(itinerary);
+    } catch (error) {
+      alert('No se pudo generar el PDF. Verifica que tengas instaladas las dependencias.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   return (
@@ -66,6 +93,15 @@ export default function ItineraryTimeline({
             <Text style={styles.headerSubtitle}>Tu Plan con MuchIQ</Text>
             <Text style={styles.headerTitle} numberOfLines={1}>{itinerary.title}</Text>
           </View>
+          
+          <TouchableOpacity 
+            onPress={handleExportPDF} 
+            disabled={isGeneratingPDF}
+            style={[styles.actionButton, { marginRight: SPACING.sm, backgroundColor: 'rgba(255,255,255,0.2)' }]}
+          >
+            <Ionicons name={isGeneratingPDF ? "sync-outline" : "download-outline"} size={22} color={COLORS.textWhite} />
+          </TouchableOpacity>
+
           {onSave && (
             <TouchableOpacity 
               onPress={onSave} 
@@ -113,7 +149,23 @@ export default function ItineraryTimeline({
                         />
                       </View>
                       <View style={styles.activityInfo}>
-                        <Text style={styles.activityName}>{activity.placeName}</Text>
+                        <View style={styles.titleRow}>
+                          <Text style={styles.activityName}>{activity.placeName}</Text>
+                          {(activity as any).coordinates && (
+                            <TouchableOpacity onPress={() => openGoogleMaps(activity as any)}>
+                              <Ionicons name="map-outline" size={16} color={COLORS.primary} />
+                            </TouchableOpacity>
+                          )}
+                        </View>
+
+                        {(activity as any).imageUrl && (
+                          <Image 
+                            source={{ uri: (activity as any).imageUrl }} 
+                            style={styles.placeImage}
+                            resizeMode="cover"
+                          />
+                        )}
+
                         <Text style={styles.activityDesc}>{activity.description}</Text>
                         <View style={styles.addressRow}>
                           <Ionicons name="location-outline" size={12} color={COLORS.textLight} />
@@ -168,6 +220,13 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.xl,
     fontWeight: TYPOGRAPHY.bold,
     color: COLORS.textWhite,
+  },
+  actionButton: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.md,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   saveButton: {
     width: 40,
@@ -262,6 +321,18 @@ const styles = StyleSheet.create({
   },
   activityInfo: {
     flex: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  placeImage: {
+    width: '100%',
+    height: 100,
+    borderRadius: RADIUS.md,
+    marginVertical: SPACING.sm,
   },
   activityName: {
     fontSize: TYPOGRAPHY.base,
